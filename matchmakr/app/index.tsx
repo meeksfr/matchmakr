@@ -1,6 +1,6 @@
 import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, Modal, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,6 +14,184 @@ type FilterOptions = {
   [K in FilterType]: string[];
 };
 
+// Mock data for multiple profiles
+const mockProfiles = [
+  {
+    id: 1,
+    name: 'Sarah',
+    age: 29,
+    location: 'San Francisco, CA',
+    yearsExperience: 6,
+    roleType: 'Full-time',
+    skills: ['React', 'Python', 'Product Management'],
+    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+    currentTitle: 'Senior Product Manager',
+    previousTitles: [
+      {
+        title: 'Product Manager',
+        company: 'Tech Solutions Inc',
+        duration: '2020-2023'
+      },
+      {
+        title: 'Associate PM',
+        company: 'StartupCo',
+        duration: '2018-2020'
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Michael',
+    age: 32,
+    location: 'New York, NY',
+    yearsExperience: 8,
+    roleType: 'Full-time',
+    skills: ['Node.js', 'AWS', 'Leadership'],
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+    currentTitle: 'Engineering Manager',
+    previousTitles: [
+      {
+        title: 'Senior Developer',
+        company: 'BigTech Corp',
+        duration: '2019-2023'
+      },
+      {
+        title: 'Full Stack Developer',
+        company: 'Digital Agency',
+        duration: '2016-2019'
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Emily',
+    age: 27,
+    location: 'Austin, TX',
+    yearsExperience: 4,
+    roleType: 'Remote',
+    skills: ['React', 'UI/UX', 'Figma'],
+    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+    currentTitle: 'UX Designer',
+    previousTitles: [
+      {
+        title: 'UI Designer',
+        company: 'Creative Studio',
+        duration: '2021-2023'
+      },
+      {
+        title: 'Visual Designer',
+        company: 'Design Co',
+        duration: '2019-2021'
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: 'David',
+    age: 31,
+    location: 'Seattle, WA',
+    yearsExperience: 7,
+    roleType: 'Full-time',
+    skills: ['Python', 'AWS', 'Machine Learning'],
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+    currentTitle: 'Data Scientist',
+    previousTitles: [
+      {
+        title: 'Data Analyst',
+        company: 'Analytics Corp',
+        duration: '2020-2023'
+      },
+      {
+        title: 'Business Analyst',
+        company: 'Tech Insights',
+        duration: '2018-2020'
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Jessica',
+    age: 25,
+    location: 'Remote',
+    yearsExperience: 2,
+    roleType: 'Contract',
+    skills: ['React', 'Node.js', 'TypeScript'],
+    imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
+    currentTitle: 'Frontend Developer',
+    previousTitles: [
+      {
+        title: 'Junior Developer',
+        company: 'Web Solutions',
+        duration: '2021-2023'
+      }
+    ]
+  },
+  {
+    id: 6,
+    name: 'James',
+    age: 35,
+    location: 'New York, NY',
+    yearsExperience: 10,
+    roleType: 'Full-time',
+    skills: ['AWS', 'Python', 'Leadership'],
+    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+    currentTitle: 'Technical Director',
+    previousTitles: [
+      {
+        title: 'Senior Engineer',
+        company: 'Enterprise Tech',
+        duration: '2019-2023'
+      },
+      {
+        title: 'Software Engineer',
+        company: 'Tech Giant',
+        duration: '2016-2019'
+      }
+    ]
+  },
+  {
+    id: 7,
+    name: 'Sofia',
+    age: 28,
+    location: 'Remote',
+    yearsExperience: 5,
+    roleType: 'Remote',
+    skills: ['React', 'Node.js', 'UI/UX'],
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+    currentTitle: 'Full Stack Developer',
+    previousTitles: [
+      {
+        title: 'Frontend Developer',
+        company: 'Remote First Co',
+        duration: '2020-2023'
+      },
+      {
+        title: 'Web Developer',
+        company: 'Digital Studio',
+        duration: '2018-2020'
+      }
+    ]
+  },
+  {
+    id: 8,
+    name: 'Alex',
+    age: 30,
+    location: 'San Francisco, CA',
+    yearsExperience: 3,
+    roleType: 'Contract',
+    skills: ['Python', 'AWS', 'Data Analysis'],
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d',
+    currentTitle: 'Data Engineer',
+    previousTitles: [
+      {
+        title: 'Data Analyst',
+        company: 'Tech Startup',
+        duration: '2021-2023'
+      }
+    ]
+  }
+];
+
 export default function App() {
   const [activeFilter, setActiveFilter] = React.useState<FilterType | null>(null);
   const [selectedFilters, setSelectedFilters] = React.useState<FilterValues>({
@@ -22,10 +200,12 @@ export default function App() {
     location: null,
     skills: null
   });
+  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [filteredProfiles, setFilteredProfiles] = useState(mockProfiles);
 
   // Add animation values
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
   const xMarkScale = useRef(new Animated.Value(0)).current;
 
@@ -36,26 +216,37 @@ export default function App() {
     skills: ['React', 'Node.js', 'Python', 'AWS']
   };
 
-  const profile = {
-    name: 'Alex',
-    age: 28,
-    location: 'San Francisco, CA',
-    yearsExperience: 5,
-    imageUrl: 'https://picsum.photos/400/600',
-    currentTitle: 'Senior Software Engineer',
-    previousTitles: [
-      {
-        title: 'Software Engineer',
-        company: 'Tech Corp',
-        duration: '2020-2023'
-      },
-      {
-        title: 'Junior Developer',
-        company: 'Startup Inc',
-        duration: '2018-2020'
-      }
-    ]
-  };
+  // Apply filters whenever selectedFilters changes
+  React.useEffect(() => {
+    let filtered = mockProfiles;
+
+    if (selectedFilters.experience) {
+      const [min, max] = selectedFilters.experience.split('-').map(x => parseInt(x));
+      filtered = filtered.filter(profile => {
+        if (max) {
+          return profile.yearsExperience >= min && profile.yearsExperience <= max;
+        } else {
+          // Handle "5+ years" case
+          return profile.yearsExperience >= min;
+        }
+      });
+    }
+
+    if (selectedFilters.roleType) {
+      filtered = filtered.filter(profile => profile.roleType === selectedFilters.roleType);
+    }
+
+    if (selectedFilters.location) {
+      filtered = filtered.filter(profile => profile.location.includes(selectedFilters.location!));
+    }
+
+    if (selectedFilters.skills) {
+      filtered = filtered.filter(profile => profile.skills.includes(selectedFilters.skills!));
+    }
+
+    setFilteredProfiles(filtered);
+    setCurrentProfileIndex(0);
+  }, [selectedFilters]);
 
   const handleInterested = () => {
     // Animate card sliding right
@@ -87,12 +278,22 @@ export default function App() {
         ]),
       ]),
       // Reset position for next card
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }),
-    ]).start();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => {
+      // Move to next profile
+      setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
+    });
 
     console.log('Expressed interest');
   };
@@ -127,12 +328,22 @@ export default function App() {
         ]),
       ]),
       // Reset position for next card
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }),
-    ]).start();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => {
+      // Move to next profile
+      setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
+    });
 
     console.log('Passed on candidate');
   };
@@ -231,53 +442,75 @@ export default function App() {
         transform: [{ translateX: slideAnim }],
         opacity: fadeAnim.interpolate({
           inputRange: [0, 1],
-          outputRange: [1, 0],
+          outputRange: [0, 1],
         }),
       }}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-          {/* Profile Card */}
-          <View style={styles.card}>
-            <Image
-              source={{ uri: profile.imageUrl }}
-              style={styles.profileImage}
-              resizeMode="cover"
-            />
-            <View style={styles.profileInfo}>
-              <Text style={styles.name}>{profile.name}, {profile.age}</Text>
-              <View style={styles.separator} />
-              <View style={styles.detailsContainer}>
-                <View style={styles.detailItem}>
-                  <Ionicons name="location-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{profile.location}</Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Ionicons name="briefcase-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{profile.yearsExperience} years experience</Text>
+        {filteredProfiles.length > 0 ? (
+          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+            {/* Profile Card */}
+            <View style={styles.card}>
+              <Image
+                source={{ uri: `${filteredProfiles[currentProfileIndex].imageUrl}?fit=facearea&facepad=2&w=800&h=800` }}
+                style={styles.profileImage}
+                resizeMode="cover"
+              />
+              <View style={styles.profileInfo}>
+                <Text style={styles.name}>{filteredProfiles[currentProfileIndex].name}, {filteredProfiles[currentProfileIndex].age}</Text>
+                <View style={styles.separator} />
+                <View style={styles.detailsContainer}>
+                  <View style={styles.detailItem}>
+                    <Ionicons name="location-outline" size={16} color="#666" />
+                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].location}</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <Ionicons name="briefcase-outline" size={16} color="#666" />
+                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].yearsExperience} years experience</Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <Ionicons name="business-outline" size={16} color="#666" />
+                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].roleType}</Text>
+                  </View>
+                  <View style={styles.skillsContainer}>
+                    <Ionicons name="code-outline" size={16} color="#666" />
+                    <View style={styles.skillPills}>
+                      {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
+                        <View key={index} style={styles.skillPill}>
+                          <Text style={styles.skillText}>{skill}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* Experience Card */}
-          <View style={styles.card}>
-            <View style={styles.experienceHeader}>
-              <Ionicons name="briefcase" size={20} color="#333" />
-              <Text style={styles.experienceTitle}>Work Experience</Text>
-            </View>
-            <View style={styles.currentRole}>
-              <Text style={styles.currentTitle}>{profile.currentTitle}</Text>
-              <Text style={styles.currentLabel}>Current Role</Text>
-            </View>
-            <View style={styles.separator} />
-            {profile.previousTitles.map((job, index) => (
-              <View key={index} style={styles.previousRole}>
-                <Text style={styles.jobTitle}>{job.title}</Text>
-                <Text style={styles.companyName}>{job.company}</Text>
-                <Text style={styles.duration}>{job.duration}</Text>
+            {/* Experience Card */}
+            <View style={styles.card}>
+              <View style={styles.experienceHeader}>
+                <Ionicons name="briefcase" size={20} color="#333" />
+                <Text style={styles.experienceTitle}>Work Experience</Text>
               </View>
-            ))}
+              <View style={styles.currentRole}>
+                <Text style={styles.currentTitle}>{filteredProfiles[currentProfileIndex].currentTitle}</Text>
+                <Text style={styles.currentLabel}>Current Role</Text>
+              </View>
+              <View style={styles.separator} />
+              {filteredProfiles[currentProfileIndex].previousTitles.map((job, index) => (
+                <View key={index} style={styles.previousRole}>
+                  <Text style={styles.jobTitle}>{job.title}</Text>
+                  <Text style={styles.companyName}>{job.company}</Text>
+                  <Text style={styles.duration}>{job.duration}</Text>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <View style={styles.noResults}>
+            <Ionicons name="search-outline" size={48} color="#999" />
+            <Text style={styles.noResultsText}>No matches found</Text>
+            <Text style={styles.noResultsSubtext}>Try adjusting your filters</Text>
           </View>
-        </ScrollView>
+        )}
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
@@ -532,5 +765,45 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginTop: 4,
+  },
+  skillPills: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  skillPill: {
+    backgroundColor: '#E8F2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  skillText: {
+    fontSize: 12,
+    color: '#0A84FF',
+    fontWeight: '500',
+  },
+  noResults: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  noResultsText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 16,
+  },
+  noResultsSubtext: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 8,
   },
 }); 
