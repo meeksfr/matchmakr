@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 
@@ -26,6 +27,15 @@ class UserProfile(models.Model):
     years_of_experience = models.PositiveIntegerField(default=0)
     resume_url = models.URLField(blank=True)
     linkedin_url = models.URLField(blank=True)
+    image_url = models.URLField(blank=True)
+    github_url = models.URLField(blank=True)
+    portfolio_url = models.URLField(blank=True)
+    twitter_url = models.URLField(blank=True)
+    personal_website = models.URLField(blank=True)
+    age = models.IntegerField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True)
+    role_type = models.CharField(max_length=50, blank=True)
+    current_title = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -126,3 +136,17 @@ class Match(models.Model):
 
     def __str__(self):
         return f"Match: {self.candidate.username} - {self.job.title} ({self.score}%)"
+
+class PreviousTitle(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='previous_titles')
+    title = models.CharField(max_length=200)
+    company = models.CharField(max_length=200)
+    duration = models.CharField(max_length=100)  # e.g., "2 years", "Jan 2020 - Present"
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.company}"
+
+    class Meta:
+        ordering = ['-created_at']

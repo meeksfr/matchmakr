@@ -1,0 +1,122 @@
+[
+  {
+    "model": "v1.userprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "bio": "Senior software engineer with a focus on scalable cloud architectures and distributed systems. Passionate about building high-performance applications and mentoring junior developers.",
+      "years_of_experience": 8,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/resume1.pdf",
+      "linkedin_url": "https://linkedin.com/in/user1",
+      "github_url": "https://github.com/user1",
+      "portfolio_url": "https://portfolio.user1.com",
+      "twitter_url": "https://twitter.com/user1",
+      "personal_website": "https://user1.com",
+      "age": 32,
+      "location": "San Francisco, CA",
+      "role_type": "Full-time",
+      "current_title": "Senior Software Engineer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 2, 3, 4]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "bio": "Product designer specializing in user experience and interaction design. Experienced in creating intuitive interfaces for enterprise SaaS products.",
+      "years_of_experience": 5,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/resume2.pdf",
+      "linkedin_url": "https://linkedin.com/in/user2",
+      "github_url": "",
+      "portfolio_url": "https://portfolio.user2.com",
+      "twitter_url": "https://twitter.com/user2",
+      "personal_website": "https://user2.com",
+      "age": 28,
+      "location": "New York, NY",
+      "role_type": "Remote",
+      "current_title": "Senior Product Designer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [13, 14]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "bio": "Full-stack developer passionate about building scalable web applications. Strong focus on React, Node.js, and cloud technologies.",
+      "years_of_experience": 4,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/resume3.pdf",
+      "linkedin_url": "https://linkedin.com/in/user3",
+      "github_url": "https://github.com/user3",
+      "portfolio_url": "https://portfolio.user3.com",
+      "twitter_url": "",
+      "personal_website": "",
+      "age": 26,
+      "location": "Austin, TX",
+      "role_type": "Full-time",
+      "current_title": "Full Stack Developer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 2, 3, 5]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 4,
+    "fields": {
+      "user": 4,
+      "bio": "Data scientist with expertise in machine learning and AI. Experience in developing predictive models and implementing deep learning solutions.",
+      "years_of_experience": 6,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/resume4.pdf",
+      "linkedin_url": "https://linkedin.com/in/user4",
+      "github_url": "https://github.com/user4",
+      "portfolio_url": "",
+      "twitter_url": "https://twitter.com/user4",
+      "personal_website": "https://user4.com",
+      "age": 30,
+      "location": "Seattle, WA",
+      "role_type": "Full-time",
+      "current_title": "Senior Data Scientist",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 15, 16]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 5,
+    "fields": {
+      "user": 5,
+      "bio": "DevOps engineer focused on automating infrastructure and optimizing deployment pipelines. Expert in AWS, Docker, and Kubernetes.",
+      "years_of_experience": 7,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/resume5.pdf",
+      "linkedin_url": "https://linkedin.com/in/user5",
+      "github_url": "https://github.com/user5",
+      "portfolio_url": "",
+      "twitter_url": "",
+      "personal_website": "https://user5.com",
+      "age": 33,
+      "location": "Portland, OR",
+      "role_type": "Remote",
+      "current_title": "Senior DevOps Engineer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [7, 8, 9]
+    }
+  }
+] 

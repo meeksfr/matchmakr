@@ -17,11 +17,6 @@ from .serializers import (
 
 # Create your views here.
 
-class TestItemViewSet(viewsets.ModelViewSet):
-    queryset = TestItem.objects.all()
-    serializer_class = TestItemSerializer
-    permission_classes = [AllowAny]  # For testing purposes only
-
 class SkillViewSet(viewsets.ModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer

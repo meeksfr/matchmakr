@@ -1,0 +1,94 @@
+[
+  {
+    "model": "v1.userprofile",
+    "fields": {
+      "user": 1,
+      "bio": "Frontend developer passionate about creating beautiful and intuitive user interfaces. Experienced in React and modern JavaScript.",
+      "years_of_experience": 3,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/sofia-resume.pdf",
+      "linkedin_url": "https://linkedin.com/in/sofia",
+      "github_url": "https://github.com/sofia",
+      "portfolio_url": "https://sofia.dev",
+      "twitter_url": "https://twitter.com/sofia",
+      "personal_website": "https://sofia.dev",
+      "age": 25,
+      "location": "Los Angeles, CA",
+      "role_type": "Full-time",
+      "current_title": "Frontend Developer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 2, 3]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "fields": {
+      "user": 2,
+      "bio": "Backend engineer specializing in distributed systems and cloud architecture. AWS certified with strong Python skills.",
+      "years_of_experience": 5,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/alex-resume.pdf",
+      "linkedin_url": "https://linkedin.com/in/alex",
+      "github_url": "https://github.com/alex",
+      "portfolio_url": "",
+      "twitter_url": "",
+      "personal_website": "https://alex.dev",
+      "age": 29,
+      "location": "Boston, MA",
+      "role_type": "Remote",
+      "current_title": "Senior Backend Engineer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 4, 5]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "fields": {
+      "user": 4,
+      "bio": "Full-stack developer with a focus on mobile app development. Experienced in React Native and Node.js.",
+      "years_of_experience": 4,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/matin-resume.pdf",
+      "linkedin_url": "https://linkedin.com/in/matin",
+      "github_url": "https://github.com/matin",
+      "portfolio_url": "https://matin.dev",
+      "twitter_url": "",
+      "personal_website": "https://matin.dev",
+      "age": 27,
+      "location": "Chicago, IL",
+      "role_type": "Full-time",
+      "current_title": "Mobile Developer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [1, 2, 6]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "fields": {
+      "user": 5,
+      "bio": "UI/UX designer with a background in product design. Passionate about creating user-centered experiences.",
+      "years_of_experience": 6,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "resume_url": "https://example.com/james-resume.pdf",
+      "linkedin_url": "https://linkedin.com/in/james",
+      "github_url": "",
+      "portfolio_url": "https://james.design",
+      "twitter_url": "https://twitter.com/james",
+      "personal_website": "https://james.design",
+      "age": 31,
+      "location": "Denver, CO",
+      "role_type": "Hybrid",
+      "current_title": "Senior Product Designer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [13, 14]
+    }
+  }
+] 

@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+// Configure axios defaults
+const token = 'dc0dab3d4d7d48cafd2e6e6d03d6615e88fcd5a2';
+axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
 export interface Skill {
   id: number;
   name: string;
