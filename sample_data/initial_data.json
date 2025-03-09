@@ -1,0 +1,123 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "alex_dev",
+      "first_name": "Alex",
+      "last_name": "Chen",
+      "email": "alex.chen@example.com",
+      "password": "pbkdf2_sha256$600000$hashed_password_here",
+      "is_active": true
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "sarah_design",
+      "first_name": "Sarah",
+      "last_name": "Miller",
+      "email": "sarah.miller@example.com",
+      "password": "pbkdf2_sha256$600000$hashed_password_here",
+      "is_active": true
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "bio": "Full-stack developer with 5 years of experience in React, Node.js, and Python. Passionate about building scalable web applications and mentoring junior developers.",
+      "age": 29,
+      "location": "Boston, MA",
+      "role_type": "Remote",
+      "current_title": "Senior Backend Engineer",
+      "years_of_experience": 5,
+      "github_url": "https://github.com/alexchen",
+      "linkedin_url": "https://linkedin.com/in/alexchen",
+      "portfolio_url": "https://alexchen.dev"
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      "bio": "UX/UI designer specializing in creating intuitive and accessible user interfaces. Experience in design systems and user research.",
+      "age": 27,
+      "location": "San Francisco, CA",
+      "role_type": "Full-time",
+      "current_title": "Senior Product Designer",
+      "years_of_experience": 4,
+      "github_url": "https://github.com/sarahm",
+      "linkedin_url": "https://linkedin.com/in/sarahmiller",
+      "portfolio_url": "https://sarahmiller.design"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 1,
+    "fields": {
+      "name": "React",
+      "category": "Frontend"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 2,
+    "fields": {
+      "name": "Python",
+      "category": "Backend"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 3,
+    "fields": {
+      "name": "Figma",
+      "category": "Design"
+    }
+  },
+  {
+    "model": "v1.userskill",
+    "fields": {
+      "user_profile": 1,
+      "skill": 1
+    }
+  },
+  {
+    "model": "v1.userskill",
+    "fields": {
+      "user_profile": 1,
+      "skill": 2
+    }
+  },
+  {
+    "model": "v1.userskill",
+    "fields": {
+      "user_profile": 2,
+      "skill": 3
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "fields": {
+      "user_profile": 1,
+      "title": "Backend Developer",
+      "company": "Tech Corp",
+      "duration": "2019-2021"
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "fields": {
+      "user_profile": 2,
+      "title": "UI Designer",
+      "company": "Design Studio",
+      "duration": "2020-2022"
+    }
+  }
+] 
