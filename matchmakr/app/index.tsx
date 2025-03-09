@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator, Animated } from 'react-native';
+import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchCandidates, fetchSkills, UserProfile, createMatch, deleteMatch, Skill } from './services/api';
 
@@ -233,186 +233,188 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="app-container">
-      {/* Header */}
-      <View style={styles.header} testID="header">
-        <Text style={styles.logoText} testID="logo">matchmakr</Text>
-        <View style={styles.filterRow} testID="filter-bar">
-          <TouchableOpacity style={styles.filterButton} testID="filter-button">
-            <Ionicons name="filter" size={24} color="#0A84FF" />
-          </TouchableOpacity>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
-            testID="filters-scroll"
-          >
-            {(Object.entries(filters) as [FilterType, string[]][]).map(([filterType, options]) => (
-              <TouchableOpacity 
-                key={filterType}
-                testID={`filter-pill-${filterType}${selectedFilters[filterType] ? '-active' : ''}`}
-                style={[
-                  styles.filterPill,
-                  selectedFilters[filterType] ? styles.filterPillActive : null
-                ]} 
-                onPress={() => handleFilterPress(filterType)}
+    <View style={styles.webContainer}>
+      <SafeAreaView style={styles.container} testID="app-container">
+        {/* Header */}
+        <View style={styles.header} testID="header">
+          <Text style={styles.logoText} testID="logo">matchmakr</Text>
+          <View style={styles.filterRow} testID="filter-bar">
+            <TouchableOpacity style={styles.filterButton} testID="filter-button">
+              <Ionicons name="filter" size={24} color="#0A84FF" />
+            </TouchableOpacity>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filtersContainer}
+              testID="filters-scroll"
+            >
+              {(Object.entries(filters) as [FilterType, string[]][]).map(([filterType, options]) => (
+                <TouchableOpacity 
+                  key={filterType}
+                  testID={`filter-pill-${filterType}${selectedFilters[filterType] ? '-active' : ''}`}
+                  style={[
+                    styles.filterPill,
+                    selectedFilters[filterType] ? styles.filterPillActive : null
+                  ]} 
+                  onPress={() => handleFilterPress(filterType)}
+                >
+                  <Text style={styles.filterText} testID={`filter-text-${filterType}`}>{filterLabels[filterType]}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Filter Dropdowns */}
+        {activeFilter && (
+          <View style={styles.dropdown} testID="filter-dropdown">
+            {filters[activeFilter].map((option: string) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.dropdownItem}
+                testID={`dropdown-item-${option.toLowerCase().replace(/\s+/g, '-')}${selectedFilters[activeFilter] === option ? '-selected' : ''}`}
+                onPress={() => handleFilterSelect(activeFilter, option)}
               >
-                <Text style={styles.filterText} testID={`filter-text-${filterType}`}>{filterLabels[filterType]}</Text>
+                <Text style={[
+                  styles.dropdownText,
+                  selectedFilters[activeFilter] === option && styles.dropdownTextSelected
+                ]} testID={`dropdown-text-${option.toLowerCase().replace(/\s+/g, '-')}`}>{option}</Text>
+                {selectedFilters[activeFilter] === option && (
+                  <Ionicons name="checkmark" size={20} color="#0A84FF" />
+                )}
               </TouchableOpacity>
             ))}
-          </ScrollView>
-        </View>
-      </View>
+          </View>
+        )}
 
-      {/* Filter Dropdowns */}
-      {activeFilter && (
-        <View style={styles.dropdown} testID="filter-dropdown">
-          {filters[activeFilter].map((option: string) => (
-            <TouchableOpacity
-              key={option}
-              style={styles.dropdownItem}
-              testID={`dropdown-item-${option.toLowerCase().replace(/\s+/g, '-')}${selectedFilters[activeFilter] === option ? '-selected' : ''}`}
-              onPress={() => handleFilterSelect(activeFilter, option)}
-            >
-              <Text style={[
-                styles.dropdownText,
-                selectedFilters[activeFilter] === option && styles.dropdownTextSelected
-              ]} testID={`dropdown-text-${option.toLowerCase().replace(/\s+/g, '-')}`}>{option}</Text>
-              {selectedFilters[activeFilter] === option && (
-                <Ionicons name="checkmark" size={20} color="#0A84FF" />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+        {/* Success Checkmark Overlay */}
+        <Animated.View style={[styles.checkmarkOverlay, {
+          transform: [{ scale: checkmarkScale }],
+        }]} testID="success-overlay">
+          <Ionicons name="checkmark-circle" size={120} color="rgba(76, 217, 100, 0.8)" />
+        </Animated.View>
 
-      {/* Success Checkmark Overlay */}
-      <Animated.View style={[styles.checkmarkOverlay, {
-        transform: [{ scale: checkmarkScale }],
-      }]} testID="success-overlay">
-        <Ionicons name="checkmark-circle" size={120} color="rgba(76, 217, 100, 0.8)" />
-      </Animated.View>
+        {/* X Mark Overlay */}
+        <Animated.View style={[styles.checkmarkOverlay, {
+          transform: [{ scale: xMarkScale }],
+        }]} testID="reject-overlay">
+          <Ionicons name="close-circle" size={120} color="rgba(255, 59, 48, 0.8)" />
+        </Animated.View>
 
-      {/* X Mark Overlay */}
-      <Animated.View style={[styles.checkmarkOverlay, {
-        transform: [{ scale: xMarkScale }],
-      }]} testID="reject-overlay">
-        <Ionicons name="close-circle" size={120} color="rgba(255, 59, 48, 0.8)" />
-      </Animated.View>
-
-      <Animated.View style={{
-        flex: 1,
-        transform: [{ translateX: slideAnim }],
-        opacity: fadeAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, 1],
-        }),
-      }} testID="profile-content">
-        {filteredProfiles.length > 0 ? (
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} testID="profile-scroll">
-            {/* Profile Card */}
-            <View style={styles.card} testID="profile-card">
-              <View style={styles.imageContainer} testID="profile-image-container">
-                <Image
-                  source={{ uri: filteredProfiles[currentProfileIndex].image_url }}
-                  style={styles.profileImage}
-                  testID="profile-image"
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.profileInfo} testID="profile-info">
-                <Text style={styles.name} testID="profile-name">
-                  {filteredProfiles[currentProfileIndex].user.first_name} {filteredProfiles[currentProfileIndex].user.last_name}
-                </Text>
-                <Text style={styles.title} testID="profile-title">
-                  {filteredProfiles[currentProfileIndex].current_title}
-                </Text>
-                <Text style={styles.location} testID="profile-location">
-                  {filteredProfiles[currentProfileIndex].location}
-                </Text>
-                <View style={styles.separator} testID="profile-separator" />
-                <View style={styles.detailsContainer} testID="profile-details">
-                  <View style={styles.detailItem} testID="experience-section">
-                    <Ionicons name="briefcase-outline" size={16} color="#666" />
-                    <Text style={styles.detailText} testID="experience-text">
-                      {filteredProfiles[currentProfileIndex].years_of_experience} years experience • {filteredProfiles[currentProfileIndex].role_type}
-                    </Text>
-                  </View>
-                  <View style={styles.skillsContainer} testID="skills-section">
-                    <Ionicons name="code-outline" size={16} color="#666" />
-                    <View style={styles.skillPills} testID="skills-list">
-                      {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
-                        <View key={index} style={styles.skillPill} testID={`skill-pill-${index}`}>
-                          <Text style={styles.skillText} testID={`skill-text-${index}`}>{skill.name}</Text>
-                        </View>
-                      ))}
+        <Animated.View style={{
+          flex: 1,
+          transform: [{ translateX: slideAnim }],
+          opacity: fadeAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1],
+          }),
+        }} testID="profile-content">
+          {filteredProfiles.length > 0 ? (
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} testID="profile-scroll">
+              {/* Profile Card */}
+              <View style={styles.card} testID="profile-card">
+                <View style={styles.imageContainer} testID="profile-image-container">
+                  <Image
+                    source={{ uri: filteredProfiles[currentProfileIndex].image_url }}
+                    style={styles.profileImage}
+                    testID="profile-image"
+                    resizeMode="cover"
+                  />
+                </View>
+                <View style={styles.profileInfo} testID="profile-info">
+                  <Text style={styles.name} testID="profile-name">
+                    {filteredProfiles[currentProfileIndex].user.first_name} {filteredProfiles[currentProfileIndex].user.last_name}
+                  </Text>
+                  <Text style={styles.title} testID="profile-title">
+                    {filteredProfiles[currentProfileIndex].current_title}
+                  </Text>
+                  <Text style={styles.location} testID="profile-location">
+                    {filteredProfiles[currentProfileIndex].location}
+                  </Text>
+                  <View style={styles.separator} testID="profile-separator" />
+                  <View style={styles.detailsContainer} testID="profile-details">
+                    <View style={styles.detailItem} testID="experience-section">
+                      <Ionicons name="briefcase-outline" size={16} color="#666" />
+                      <Text style={styles.detailText} testID="experience-text">
+                        {filteredProfiles[currentProfileIndex].years_of_experience} years experience • {filteredProfiles[currentProfileIndex].role_type}
+                      </Text>
+                    </View>
+                    <View style={styles.skillsContainer} testID="skills-section">
+                      <Ionicons name="code-outline" size={16} color="#666" />
+                      <View style={styles.skillPills} testID="skills-list">
+                        {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
+                          <View key={index} style={styles.skillPill} testID={`skill-pill-${index}`}>
+                            <Text style={styles.skillText} testID={`skill-text-${index}`}>{skill.name}</Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
 
-            {/* Experience Card */}
-            <View style={styles.card} testID="experience-card">
-              <View style={styles.experienceHeader} testID="experience-header">
-                <Ionicons name="briefcase" size={20} color="#333" />
-                <Text style={styles.experienceTitle} testID="experience-title">Experience</Text>
+              {/* Experience Card */}
+              <View style={styles.card} testID="experience-card">
+                <View style={styles.experienceHeader} testID="experience-header">
+                  <Ionicons name="briefcase" size={20} color="#333" />
+                  <Text style={styles.experienceTitle} testID="experience-title">Experience</Text>
+                </View>
+                <View style={styles.experienceContent} testID="experience-content">
+                  {filteredProfiles[currentProfileIndex].previous_titles?.map((title, index) => (
+                    <View key={index} style={styles.experienceItem} testID={`experience-item-${index}`}>
+                      <Text style={styles.experienceRole} testID={`experience-role-${index}`}>{title.title}</Text>
+                      <Text style={styles.experienceCompany} testID={`experience-company-${index}`}>{title.company}</Text>
+                      <Text style={styles.experienceDuration} testID={`experience-duration-${index}`}>{title.duration}</Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.bioSection} testID="bio-section">
+                  <Text style={styles.bioTitle} testID="bio-title">About</Text>
+                  <Text style={styles.bioText} testID="bio-content">{filteredProfiles[currentProfileIndex].bio}</Text>
+                </View>
+                {filteredProfiles[currentProfileIndex].resume_url && (
+                  <TouchableOpacity 
+                    style={styles.resumeButton}
+                    testID="resume-button"
+                    onPress={() => window.open(filteredProfiles[currentProfileIndex].resume_url, '_blank')}
+                  >
+                    <Ionicons name="document-text-outline" size={20} color="#0A84FF" />
+                    <Text style={styles.resumeButtonText} testID="resume-button-text">View Resume</Text>
+                  </TouchableOpacity>
+                )}
               </View>
-              <View style={styles.experienceContent} testID="experience-content">
-                {filteredProfiles[currentProfileIndex].previous_titles?.map((title, index) => (
-                  <View key={index} style={styles.experienceItem} testID={`experience-item-${index}`}>
-                    <Text style={styles.experienceRole} testID={`experience-role-${index}`}>{title.title}</Text>
-                    <Text style={styles.experienceCompany} testID={`experience-company-${index}`}>{title.company}</Text>
-                    <Text style={styles.experienceDuration} testID={`experience-duration-${index}`}>{title.duration}</Text>
-                  </View>
-                ))}
-              </View>
-              <View style={styles.bioSection} testID="bio-section">
-                <Text style={styles.bioTitle} testID="bio-title">About</Text>
-                <Text style={styles.bioText} testID="bio-content">{filteredProfiles[currentProfileIndex].bio}</Text>
-              </View>
-              {filteredProfiles[currentProfileIndex].resume_url && (
-                <TouchableOpacity 
-                  style={styles.resumeButton}
-                  testID="resume-button"
-                  onPress={() => window.open(filteredProfiles[currentProfileIndex].resume_url, '_blank')}
-                >
-                  <Ionicons name="document-text-outline" size={20} color="#0A84FF" />
-                  <Text style={styles.resumeButtonText} testID="resume-button-text">View Resume</Text>
-                </TouchableOpacity>
-              )}
+            </ScrollView>
+          ) : (
+            <View style={styles.noResults} testID="no-results">
+              <Ionicons name="search-outline" size={48} color="#999" />
+              <Text style={styles.noResultsText} testID="no-results-text">No matches found</Text>
+              <Text style={styles.noResultsSubtext} testID="no-results-subtext">Try adjusting your filters</Text>
             </View>
-          </ScrollView>
-        ) : (
-          <View style={styles.noResults} testID="no-results">
-            <Ionicons name="search-outline" size={48} color="#999" />
-            <Text style={styles.noResultsText} testID="no-results-text">No matches found</Text>
-            <Text style={styles.noResultsSubtext} testID="no-results-subtext">Try adjusting your filters</Text>
+          )}
+
+          {/* Action Buttons */}
+          <View style={styles.actionButtons} testID="action-buttons">
+            <TouchableOpacity 
+              style={[styles.button, styles.passButton]} 
+              testID="pass-button"
+              onPress={handlePass}
+            >
+              <Ionicons name="close-circle-outline" size={24} color="#666" />
+              <Text style={styles.buttonText} testID="pass-button-text">Pass</Text>
+            </TouchableOpacity>
+            <View style={styles.buttonSeparator} testID="button-separator" />
+            <TouchableOpacity 
+              style={[styles.button, styles.interestedButton]} 
+              testID="interested-button"
+              onPress={handleInterested}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="#0A84FF" />
+              <Text style={[styles.buttonText, styles.interestedText]} testID="interested-button-text">Interested</Text>
+            </TouchableOpacity>
           </View>
-        )}
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons} testID="action-buttons">
-          <TouchableOpacity 
-            style={[styles.button, styles.passButton]} 
-            testID="pass-button"
-            onPress={handlePass}
-          >
-            <Ionicons name="close-circle-outline" size={24} color="#666" />
-            <Text style={styles.buttonText} testID="pass-button-text">Pass</Text>
-          </TouchableOpacity>
-          <View style={styles.buttonSeparator} testID="button-separator" />
-          <TouchableOpacity 
-            style={[styles.button, styles.interestedButton]} 
-            testID="interested-button"
-            onPress={handleInterested}
-          >
-            <Ionicons name="checkmark-circle-outline" size={24} color="#0A84FF" />
-            <Text style={[styles.buttonText, styles.interestedText]} testID="interested-button-text">Interested</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </SafeAreaView>
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -420,7 +422,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    maxWidth: Platform.OS === 'web' ? 480 : '100%',
+    alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
+    height: '100%',
+    borderWidth: Platform.OS === 'web' ? 1 : 0,
+    borderColor: '#e1e1e1',
+    borderRadius: Platform.OS === 'web' ? 32 : 0,
+    overflow: 'hidden',
+    ...(Platform.OS === 'web' ? {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 20,
+    } : {}),
   },
+  webContainer: Platform.OS === 'web' ? {
+    flex: 1,
+    height: '100%',
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  } : {},
   header: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -531,7 +556,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: width * 0.8,
+    height: 300,
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
@@ -541,7 +566,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     top: '50%',
-    transform: [{ translateY: -width * 0.4 }],
+    transform: [{ translateY: -150 }],
   },
   profileInfo: {
     padding: 20,
@@ -763,4 +788,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-}); 
+});
+
+// Add a style tag for web-specific CSS if on web platform
+if (Platform.OS === 'web') {
+  const style = document.createElement('style');
+  style.textContent = `
+    html, body, #root {
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+  `;
+  document.head.appendChild(style);
+} 
