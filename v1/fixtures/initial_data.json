@@ -1,0 +1,720 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "john_doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "jane_smith",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "jane.smith@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "username": "alice_designer",
+      "first_name": "Alice",
+      "last_name": "Designer",
+      "email": "alice.designer@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "username": "bob_analyst",
+      "first_name": "Bob",
+      "last_name": "Analyst",
+      "email": "bob.analyst@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {
+      "username": "charlie_dev",
+      "first_name": "Charlie",
+      "last_name": "Developer",
+      "email": "charlie.dev@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 6,
+    "fields": {
+      "username": "david_engineer",
+      "first_name": "David",
+      "last_name": "Engineer",
+      "email": "david.engineer@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 7,
+    "fields": {
+      "username": "emma_frontend",
+      "first_name": "Emma",
+      "last_name": "Frontend",
+      "email": "emma.frontend@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 8,
+    "fields": {
+      "username": "frank_recruiter",
+      "first_name": "Frank",
+      "last_name": "Recruiter",
+      "email": "frank.recruiter@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 9,
+    "fields": {
+      "username": "grace_hr",
+      "first_name": "Grace",
+      "last_name": "HR",
+      "email": "grace.hr@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {
+      "username": "henry_manager",
+      "first_name": "Henry",
+      "last_name": "Manager",
+      "email": "henry.manager@example.com",
+      "password": "pbkdf2_sha256$600000$salt$hashedpassword",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "date_joined": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 1,
+    "fields": {
+      "name": "Python",
+      "description": "Python programming language"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 2,
+    "fields": {
+      "name": "JavaScript",
+      "description": "JavaScript programming language"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 3,
+    "fields": {
+      "name": "React",
+      "description": "React framework"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 4,
+    "fields": {
+      "name": "Django",
+      "description": "Django web framework"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 5,
+    "fields": {
+      "name": "Node.js",
+      "description": "Node.js runtime"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 6,
+    "fields": {
+      "name": "SQL",
+      "description": "SQL database language"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 7,
+    "fields": {
+      "name": "AWS",
+      "description": "Amazon Web Services"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 8,
+    "fields": {
+      "name": "Docker",
+      "description": "Containerization platform"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 9,
+    "fields": {
+      "name": "Git",
+      "description": "Version control system"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 10,
+    "fields": {
+      "name": "TypeScript",
+      "description": "TypeScript programming language"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 11,
+    "fields": {
+      "name": "Product Management",
+      "description": "Product strategy and execution"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 12,
+    "fields": {
+      "name": "Leadership",
+      "description": "Team management and leadership"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 13,
+    "fields": {
+      "name": "UI/UX",
+      "description": "User interface and experience design"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 14,
+    "fields": {
+      "name": "Figma",
+      "description": "Design and prototyping tool"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 15,
+    "fields": {
+      "name": "Machine Learning",
+      "description": "AI and machine learning"
+    }
+  },
+  {
+    "model": "v1.skill",
+    "pk": 16,
+    "fields": {
+      "name": "Data Analysis",
+      "description": "Data analysis and visualization"
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 1,
+    "fields": {
+      "title": "Product Manager",
+      "company": "Tech Solutions Inc",
+      "duration": "2020-2023",
+      "user_profile": 1
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 2,
+    "fields": {
+      "title": "Associate PM",
+      "company": "StartupCo",
+      "duration": "2018-2020",
+      "user_profile": 1
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 3,
+    "fields": {
+      "title": "Senior Developer",
+      "company": "BigTech Corp",
+      "duration": "2019-2023",
+      "user_profile": 2
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 4,
+    "fields": {
+      "title": "Full Stack Developer",
+      "company": "Digital Agency",
+      "duration": "2016-2019",
+      "user_profile": 2
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 5,
+    "fields": {
+      "title": "UI Designer",
+      "company": "Creative Studio",
+      "duration": "2021-2023",
+      "user_profile": 3
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 6,
+    "fields": {
+      "title": "Visual Designer",
+      "company": "Design Co",
+      "duration": "2019-2021",
+      "user_profile": 3
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 7,
+    "fields": {
+      "title": "Data Analyst",
+      "company": "Analytics Corp",
+      "duration": "2020-2023",
+      "user_profile": 4
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 8,
+    "fields": {
+      "title": "Business Analyst",
+      "company": "Tech Insights",
+      "duration": "2018-2020",
+      "user_profile": 4
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 9,
+    "fields": {
+      "title": "Junior Developer",
+      "company": "Web Solutions",
+      "duration": "2021-2023",
+      "user_profile": 5
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 10,
+    "fields": {
+      "title": "Senior Engineer",
+      "company": "Enterprise Tech",
+      "duration": "2019-2023",
+      "user_profile": 6
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 11,
+    "fields": {
+      "title": "Software Engineer",
+      "company": "Tech Giant",
+      "duration": "2016-2019",
+      "user_profile": 6
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 12,
+    "fields": {
+      "title": "Frontend Developer",
+      "company": "Remote First Co",
+      "duration": "2020-2023",
+      "user_profile": 7
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 13,
+    "fields": {
+      "title": "Web Developer",
+      "company": "Digital Studio",
+      "duration": "2018-2020",
+      "user_profile": 7
+    }
+  },
+  {
+    "model": "v1.previoustitle",
+    "pk": 14,
+    "fields": {
+      "title": "Data Analyst",
+      "company": "Tech Startup",
+      "duration": "2021-2023",
+      "user_profile": 8
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "bio": "Experienced product manager with a passion for user-centric design",
+      "years_of_experience": 6,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 29,
+      "location": "San Francisco, CA",
+      "role_type": "Full-time",
+      "current_title": "Senior Product Manager",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        11,
+        1,
+        3
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "bio": "Engineering leader focused on building high-performing teams",
+      "years_of_experience": 8,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 32,
+      "location": "New York, NY",
+      "role_type": "Full-time",
+      "current_title": "Engineering Manager",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        12,
+        5,
+        7
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "bio": "Creative UX designer with a focus on user research and interaction design",
+      "years_of_experience": 4,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 27,
+      "location": "Austin, TX",
+      "role_type": "Remote",
+      "current_title": "UX Designer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        3,
+        13,
+        14
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 4,
+    "fields": {
+      "user": 4,
+      "bio": "Data scientist specializing in machine learning and predictive analytics",
+      "years_of_experience": 7,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 31,
+      "location": "Seattle, WA",
+      "role_type": "Full-time",
+      "current_title": "Data Scientist",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        1,
+        15,
+        7
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 5,
+    "fields": {
+      "user": 5,
+      "bio": "Frontend developer passionate about creating beautiful user interfaces",
+      "years_of_experience": 2,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 25,
+      "location": "Remote",
+      "role_type": "Contract",
+      "current_title": "Frontend Developer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        10,
+        3,
+        5
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 6,
+    "fields": {
+      "user": 6,
+      "bio": "Technical leader with extensive experience in cloud architecture",
+      "years_of_experience": 10,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 35,
+      "location": "New York, NY",
+      "role_type": "Full-time",
+      "current_title": "Technical Director",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        1,
+        12,
+        7
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 7,
+    "fields": {
+      "user": 7,
+      "bio": "Full stack developer with expertise in modern web technologies",
+      "years_of_experience": 5,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 28,
+      "location": "Remote",
+      "role_type": "Remote",
+      "current_title": "Full Stack Developer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        13,
+        3,
+        5
+      ]
+    }
+  },
+  {
+    "model": "v1.userprofile",
+    "pk": 8,
+    "fields": {
+      "user": 8,
+      "bio": "Data engineer focused on building scalable data pipelines",
+      "years_of_experience": 3,
+      "is_employer": false,
+      "image_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+      "resume_url": "",
+      "linkedin_url": "",
+      "age": 30,
+      "location": "San Francisco, CA",
+      "role_type": "Contract",
+      "current_title": "Data Engineer",
+      "created_at": "2024-03-09T00:00:00Z",
+      "updated_at": "2024-03-09T00:00:00Z",
+      "skills": [
+        16,
+        1,
+        7
+      ]
+    }
+  },
+  {
+    "model": "v1.company",
+    "pk": 1,
+    "fields": {
+      "name": "Tech Corp",
+      "description": "Leading tech company",
+      "website": "",
+      "location": "San Francisco, CA",
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:07.043Z",
+      "updated_at": "2025-03-09T02:23:07.043Z"
+    }
+  },
+  {
+    "model": "v1.company",
+    "pk": 2,
+    "fields": {
+      "name": "Data Systems",
+      "description": "Data analytics company",
+      "website": "",
+      "location": "New York, NY",
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:07.044Z",
+      "updated_at": "2025-03-09T02:23:07.044Z"
+    }
+  },
+  {
+    "model": "v1.company",
+    "pk": 3,
+    "fields": {
+      "name": "Web Solutions",
+      "description": "Web development agency",
+      "website": "",
+      "location": "Austin, TX",
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:07.045Z",
+      "updated_at": "2025-03-09T02:23:07.045Z"
+    }
+  },
+  {
+    "model": "v1.jobposting",
+    "pk": 1,
+    "fields": {
+      "title": "Senior Python Developer",
+      "company": 1,
+      "description": "Looking for an experienced Python developer",
+      "requirements": "At least 5 years of experience",
+      "location": "San Francisco, CA",
+      "salary_min": "120000.00",
+      "salary_max": "180000.00",
+      "employment_type": "FULL_TIME",
+      "experience_level": "SENIOR",
+      "is_remote": true,
+      "is_active": true,
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:35.550Z",
+      "updated_at": "2025-03-09T02:23:35.550Z",
+      "application_deadline": "2025-04-08T02:23:35.545Z",
+      "required_skills": [],
+      "preferred_skills": []
+    }
+  },
+  {
+    "model": "v1.jobposting",
+    "pk": 2,
+    "fields": {
+      "title": "Frontend Developer",
+      "company": 2,
+      "description": "Frontend development position",
+      "requirements": "Strong JavaScript skills",
+      "location": "New York, NY",
+      "salary_min": "80000.00",
+      "salary_max": "120000.00",
+      "employment_type": "FULL_TIME",
+      "experience_level": "MID",
+      "is_remote": false,
+      "is_active": true,
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:35.553Z",
+      "updated_at": "2025-03-09T02:23:35.553Z",
+      "application_deadline": "2025-04-08T02:23:35.546Z",
+      "required_skills": [],
+      "preferred_skills": []
+    }
+  },
+  {
+    "model": "v1.jobposting",
+    "pk": 3,
+    "fields": {
+      "title": "DevOps Engineer",
+      "company": 3,
+      "description": "DevOps position",
+      "requirements": "Experience with AWS and Docker",
+      "location": "Austin, TX",
+      "salary_min": "100000.00",
+      "salary_max": "150000.00",
+      "employment_type": "FULL_TIME",
+      "experience_level": "MID",
+      "is_remote": true,
+      "is_active": true,
+      "created_by": 2,
+      "created_at": "2025-03-09T02:23:35.554Z",
+      "updated_at": "2025-03-09T02:23:35.554Z",
+      "application_deadline": "2025-04-08T02:23:35.547Z",
+      "required_skills": [],
+      "preferred_skills": []
+    }
+  }
+]

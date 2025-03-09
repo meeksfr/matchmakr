@@ -1,8 +1,9 @@
-import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, Modal, Animated } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef, useState } from 'react';
+import { fetchCandidates, fetchSkills, UserProfile, createMatch, deleteMatch, Skill } from './services/api';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 type FilterType = 'experience' | 'roleType' | 'location' | 'skills';
 
@@ -14,239 +15,90 @@ type FilterOptions = {
   [K in FilterType]: string[];
 };
 
-// Mock data for multiple profiles
-const mockProfiles = [
-  {
-    id: 1,
-    name: 'Sarah',
-    age: 29,
-    location: 'San Francisco, CA',
-    yearsExperience: 6,
-    roleType: 'Full-time',
-    skills: ['React', 'Python', 'Product Management'],
-    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    currentTitle: 'Senior Product Manager',
-    previousTitles: [
-      {
-        title: 'Product Manager',
-        company: 'Tech Solutions Inc',
-        duration: '2020-2023'
-      },
-      {
-        title: 'Associate PM',
-        company: 'StartupCo',
-        duration: '2018-2020'
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Michael',
-    age: 32,
-    location: 'New York, NY',
-    yearsExperience: 8,
-    roleType: 'Full-time',
-    skills: ['Node.js', 'AWS', 'Leadership'],
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-    currentTitle: 'Engineering Manager',
-    previousTitles: [
-      {
-        title: 'Senior Developer',
-        company: 'BigTech Corp',
-        duration: '2019-2023'
-      },
-      {
-        title: 'Full Stack Developer',
-        company: 'Digital Agency',
-        duration: '2016-2019'
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Emily',
-    age: 27,
-    location: 'Austin, TX',
-    yearsExperience: 4,
-    roleType: 'Remote',
-    skills: ['React', 'UI/UX', 'Figma'],
-    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-    currentTitle: 'UX Designer',
-    previousTitles: [
-      {
-        title: 'UI Designer',
-        company: 'Creative Studio',
-        duration: '2021-2023'
-      },
-      {
-        title: 'Visual Designer',
-        company: 'Design Co',
-        duration: '2019-2021'
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: 'David',
-    age: 31,
-    location: 'Seattle, WA',
-    yearsExperience: 7,
-    roleType: 'Full-time',
-    skills: ['Python', 'AWS', 'Machine Learning'],
-    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-    currentTitle: 'Data Scientist',
-    previousTitles: [
-      {
-        title: 'Data Analyst',
-        company: 'Analytics Corp',
-        duration: '2020-2023'
-      },
-      {
-        title: 'Business Analyst',
-        company: 'Tech Insights',
-        duration: '2018-2020'
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: 'Jessica',
-    age: 25,
-    location: 'Remote',
-    yearsExperience: 2,
-    roleType: 'Contract',
-    skills: ['React', 'Node.js', 'TypeScript'],
-    imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
-    currentTitle: 'Frontend Developer',
-    previousTitles: [
-      {
-        title: 'Junior Developer',
-        company: 'Web Solutions',
-        duration: '2021-2023'
-      }
-    ]
-  },
-  {
-    id: 6,
-    name: 'James',
-    age: 35,
-    location: 'New York, NY',
-    yearsExperience: 10,
-    roleType: 'Full-time',
-    skills: ['AWS', 'Python', 'Leadership'],
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-    currentTitle: 'Technical Director',
-    previousTitles: [
-      {
-        title: 'Senior Engineer',
-        company: 'Enterprise Tech',
-        duration: '2019-2023'
-      },
-      {
-        title: 'Software Engineer',
-        company: 'Tech Giant',
-        duration: '2016-2019'
-      }
-    ]
-  },
-  {
-    id: 7,
-    name: 'Sofia',
-    age: 28,
-    location: 'Remote',
-    yearsExperience: 5,
-    roleType: 'Remote',
-    skills: ['React', 'Node.js', 'UI/UX'],
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
-    currentTitle: 'Full Stack Developer',
-    previousTitles: [
-      {
-        title: 'Frontend Developer',
-        company: 'Remote First Co',
-        duration: '2020-2023'
-      },
-      {
-        title: 'Web Developer',
-        company: 'Digital Studio',
-        duration: '2018-2020'
-      }
-    ]
-  },
-  {
-    id: 8,
-    name: 'Alex',
-    age: 30,
-    location: 'San Francisco, CA',
-    yearsExperience: 3,
-    roleType: 'Contract',
-    skills: ['Python', 'AWS', 'Data Analysis'],
-    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d',
-    currentTitle: 'Data Engineer',
-    previousTitles: [
-      {
-        title: 'Data Analyst',
-        company: 'Tech Startup',
-        duration: '2021-2023'
-      }
-    ]
-  }
-];
+const filterLabels: Record<FilterType, string> = {
+  experience: 'Experience',
+  roleType: 'Role Type',
+  location: 'Location',
+  skills: 'Skills'
+};
 
 export default function App() {
-  const [activeFilter, setActiveFilter] = React.useState<FilterType | null>(null);
-  const [selectedFilters, setSelectedFilters] = React.useState<FilterValues>({
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<FilterValues>({
     experience: null,
     roleType: null,
     location: null,
     skills: null
   });
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-  const [filteredProfiles, setFilteredProfiles] = useState(mockProfiles);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [filteredProfiles, setFilteredProfiles] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [availableSkills, setAvailableSkills] = useState<string[]>([]);
 
-  // Add animation values
+  // Animation values
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
   const xMarkScale = useRef(new Animated.Value(0)).current;
 
+  // Fetch initial data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [candidatesData, skillsData] = await Promise.all([
+          fetchCandidates(),
+          fetchSkills()
+        ]);
+        setProfiles(candidatesData);
+        setFilteredProfiles(candidatesData);
+        setAvailableSkills(skillsData.map((skill: Skill) => skill.name));
+        setError(null);
+      } catch (err) {
+        setError('Failed to load candidates. Please try again.');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const filters: FilterOptions = {
     experience: ['0-2 years', '3-5 years', '5+ years'],
     roleType: ['Full-time', 'Contract', 'Remote'],
     location: ['San Francisco', 'New York', 'Remote'],
-    skills: ['React', 'Node.js', 'Python', 'AWS']
+    skills: availableSkills
   };
 
   // Apply filters whenever selectedFilters changes
-  React.useEffect(() => {
-    let filtered = mockProfiles;
+  useEffect(() => {
+    let filtered = profiles;
 
     if (selectedFilters.experience) {
       const [min, max] = selectedFilters.experience.split('-').map(x => parseInt(x));
       filtered = filtered.filter(profile => {
         if (max) {
-          return profile.yearsExperience >= min && profile.yearsExperience <= max;
+          return profile.years_of_experience >= min && profile.years_of_experience <= max;
         } else {
           // Handle "5+ years" case
-          return profile.yearsExperience >= min;
+          return profile.years_of_experience >= min;
         }
       });
     }
 
-    if (selectedFilters.roleType) {
-      filtered = filtered.filter(profile => profile.roleType === selectedFilters.roleType);
-    }
-
-    if (selectedFilters.location) {
-      filtered = filtered.filter(profile => profile.location.includes(selectedFilters.location!));
-    }
-
     if (selectedFilters.skills) {
-      filtered = filtered.filter(profile => profile.skills.includes(selectedFilters.skills!));
+      filtered = filtered.filter(profile => 
+        profile.skills.some(skill => skill.name === selectedFilters.skills)
+      );
     }
 
     setFilteredProfiles(filtered);
     setCurrentProfileIndex(0);
-  }, [selectedFilters]);
+  }, [selectedFilters, profiles]);
 
   const handleInterested = () => {
     // Animate card sliding right
@@ -294,8 +146,6 @@ export default function App() {
       // Move to next profile
       setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
     });
-
-    console.log('Expressed interest');
   };
 
   const handlePass = () => {
@@ -344,8 +194,6 @@ export default function App() {
       // Move to next profile
       setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
     });
-
-    console.log('Passed on candidate');
   };
 
   const handleFilterPress = (filterType: FilterType) => {
@@ -360,178 +208,274 @@ export default function App() {
     setActiveFilter(null);
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0A84FF" />
+        <Text style={styles.loadingText}>Loading candidates...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity 
+          style={styles.retryButton}
+          onPress={() => window.location.reload()}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.logoText}>matchmakr</Text>
-        <View style={styles.filterRow}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter" size={24} color="#0A84FF" />
-          </TouchableOpacity>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
-          >
-            {(Object.entries(filters) as [FilterType, string[]][]).map(([filterType, options]) => (
-              <TouchableOpacity 
-                key={filterType}
-                style={[
-                  styles.filterPill,
-                  selectedFilters[filterType] && styles.filterPillActive
-                ]} 
-                onPress={() => handleFilterPress(filterType)}
+    <View style={styles.webContainer}>
+      <SafeAreaView style={styles.container} testID="app-container">
+        {/* Header */}
+        <View style={styles.header} testID="header">
+          <Text style={styles.logoText} testID="logo">matchmakr</Text>
+          <View style={styles.filterRow} testID="filter-bar">
+            <TouchableOpacity style={styles.filterButton} testID="filter-button">
+              <Ionicons name="filter" size={24} color="#0A84FF" />
+            </TouchableOpacity>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filtersContainer}
+              testID="filters-scroll"
+            >
+              {(Object.entries(filters) as [FilterType, string[]][]).map(([filterType, options]) => (
+                <TouchableOpacity 
+                  key={filterType}
+                  testID={`filter-pill-${filterType}${selectedFilters[filterType] ? '-active' : ''}`}
+                  style={[
+                    styles.filterPill,
+                    selectedFilters[filterType] ? styles.filterPillActive : null
+                  ]} 
+                  onPress={() => handleFilterPress(filterType)}
+                >
+                  <Text style={styles.filterText} testID={`filter-text-${filterType}`}>{filterLabels[filterType]}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Filter Dropdowns */}
+        {activeFilter && (
+          <View style={styles.dropdown} testID="filter-dropdown">
+            {filters[activeFilter].map((option: string) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.dropdownItem}
+                testID={`dropdown-item-${option.toLowerCase().replace(/\s+/g, '-')}${selectedFilters[activeFilter] === option ? '-selected' : ''}`}
+                onPress={() => handleFilterSelect(activeFilter, option)}
               >
                 <Text style={[
-                  styles.filterText,
-                  selectedFilters[filterType] && styles.filterTextActive
-                ]}>
-                  {selectedFilters[filterType] || filterType}
-                </Text>
-                <Ionicons 
-                  name={activeFilter === filterType ? "chevron-up" : "chevron-down"} 
-                  size={16} 
-                  color={selectedFilters[filterType] ? "#0A84FF" : "#666"} 
-                />
+                  styles.dropdownText,
+                  selectedFilters[activeFilter] === option && styles.dropdownTextSelected
+                ]} testID={`dropdown-text-${option.toLowerCase().replace(/\s+/g, '-')}`}>{option}</Text>
+                {selectedFilters[activeFilter] === option && (
+                  <Ionicons name="checkmark" size={20} color="#0A84FF" />
+                )}
               </TouchableOpacity>
             ))}
-          </ScrollView>
-        </View>
-      </View>
+          </View>
+        )}
 
-      {/* Filter Dropdowns */}
-      {activeFilter && (
-        <View style={styles.dropdown}>
-          {filters[activeFilter].map((option: string) => (
-            <TouchableOpacity
-              key={option}
-              style={styles.dropdownItem}
-              onPress={() => handleFilterSelect(activeFilter, option)}
+        {/* Success Checkmark Overlay */}
+        <Animated.View style={[styles.checkmarkOverlay, {
+          transform: [{ scale: checkmarkScale }],
+        }]} testID="success-overlay">
+          <Ionicons name="checkmark-circle" size={120} color="rgba(76, 217, 100, 0.8)" />
+        </Animated.View>
+
+        {/* X Mark Overlay */}
+        <Animated.View style={[styles.checkmarkOverlay, {
+          transform: [{ scale: xMarkScale }],
+        }]} testID="reject-overlay">
+          <Ionicons name="close-circle" size={120} color="rgba(255, 59, 48, 0.8)" />
+        </Animated.View>
+
+        <Animated.View style={{
+          flex: 1,
+          transform: [{ translateX: slideAnim }],
+          opacity: fadeAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1],
+          }),
+        }} testID="profile-content">
+          {filteredProfiles.length > 0 ? (
+            <ScrollView 
+              style={styles.scrollView} 
+              contentContainerStyle={styles.scrollContent} 
+              testID="profile-scroll"
             >
-              <Text style={[
-                styles.dropdownText,
-                selectedFilters[activeFilter] === option && styles.dropdownTextSelected
-              ]}>
-                {option}
-              </Text>
-              {selectedFilters[activeFilter] === option && (
-                <Ionicons name="checkmark" size={20} color="#0A84FF" />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      {/* Success Checkmark Overlay */}
-      <Animated.View style={[styles.checkmarkOverlay, {
-        transform: [{ scale: checkmarkScale }],
-      }]}>
-        <Ionicons name="checkmark-circle" size={120} color="rgba(76, 217, 100, 0.8)" />
-      </Animated.View>
-
-      {/* X Mark Overlay */}
-      <Animated.View style={[styles.checkmarkOverlay, {
-        transform: [{ scale: xMarkScale }],
-      }]}>
-        <Ionicons name="close-circle" size={120} color="rgba(255, 59, 48, 0.8)" />
-      </Animated.View>
-
-      <Animated.View style={{
-        flex: 1,
-        transform: [{ translateX: slideAnim }],
-        opacity: fadeAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, 1],
-        }),
-      }}>
-        {filteredProfiles.length > 0 ? (
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-            {/* Profile Card */}
-            <View style={styles.card}>
-              <Image
-                source={{ uri: `${filteredProfiles[currentProfileIndex].imageUrl}?fit=facearea&facepad=2&w=800&h=800` }}
-                style={styles.profileImage}
-                resizeMode="cover"
-              />
-              <View style={styles.profileInfo}>
-                <Text style={styles.name}>{filteredProfiles[currentProfileIndex].name}, {filteredProfiles[currentProfileIndex].age}</Text>
-                <View style={styles.separator} />
-                <View style={styles.detailsContainer}>
-                  <View style={styles.detailItem}>
-                    <Ionicons name="location-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].location}</Text>
-                  </View>
-                  <View style={styles.detailItem}>
-                    <Ionicons name="briefcase-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].yearsExperience} years experience</Text>
-                  </View>
-                  <View style={styles.detailItem}>
-                    <Ionicons name="business-outline" size={16} color="#666" />
-                    <Text style={styles.detailText}>{filteredProfiles[currentProfileIndex].roleType}</Text>
-                  </View>
-                  <View style={styles.skillsContainer}>
-                    <Ionicons name="code-outline" size={16} color="#666" />
-                    <View style={styles.skillPills}>
-                      {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
-                        <View key={index} style={styles.skillPill}>
-                          <Text style={styles.skillText}>{skill}</Text>
-                        </View>
-                      ))}
+              {/* Profile Card */}
+              <View style={styles.card} testID="profile-card">
+                <View style={styles.imageContainer} testID="profile-image-container">
+                  <Image
+                    source={{ uri: filteredProfiles[currentProfileIndex].image_url }}
+                    style={styles.profileImage}
+                    testID="profile-image"
+                    resizeMode="cover"
+                  />
+                </View>
+                <View style={styles.profileInfo} testID="profile-info">
+                  <Text style={styles.name} testID="profile-name">
+                    {filteredProfiles[currentProfileIndex].user.first_name}{' '}
+                    {filteredProfiles[currentProfileIndex].user.last_name}
+                  </Text>
+                  <Text style={styles.title} testID="profile-title">
+                    {filteredProfiles[currentProfileIndex].current_title}
+                  </Text>
+                  <Text style={styles.location} testID="profile-location">
+                    {filteredProfiles[currentProfileIndex].location}
+                  </Text>
+                  <View style={styles.separator} testID="profile-separator" />
+                  <View style={styles.detailsContainer} testID="profile-details">
+                    <View style={styles.detailItem} testID="experience-section">
+                      <Ionicons name="briefcase-outline" size={16} color="#666" />
+                      <Text style={styles.detailText} testID="experience-text">
+                        {filteredProfiles[currentProfileIndex].years_of_experience} years experience • {filteredProfiles[currentProfileIndex].role_type}
+                      </Text>
+                    </View>
+                    <View style={styles.skillsContainer} testID="skills-section">
+                      <Ionicons name="code-outline" size={16} color="#666" />
+                      <View style={styles.skillPills} testID="skills-list">
+                        {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
+                          <View key={index} style={styles.skillPill} testID={`skill-pill-${index}`}>
+                            <Text style={styles.skillText} testID={`skill-text-${index}`}>{skill.name}</Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
 
-            {/* Experience Card */}
-            <View style={styles.card}>
-              <View style={styles.experienceHeader}>
-                <Ionicons name="briefcase" size={20} color="#333" />
-                <Text style={styles.experienceTitle}>Work Experience</Text>
-              </View>
-              <View style={styles.currentRole}>
-                <Text style={styles.currentTitle}>{filteredProfiles[currentProfileIndex].currentTitle}</Text>
-                <Text style={styles.currentLabel}>Current Role</Text>
-              </View>
-              <View style={styles.separator} />
-              {filteredProfiles[currentProfileIndex].previousTitles.map((job, index) => (
-                <View key={index} style={styles.previousRole}>
-                  <Text style={styles.jobTitle}>{job.title}</Text>
-                  <Text style={styles.companyName}>{job.company}</Text>
-                  <Text style={styles.duration}>{job.duration}</Text>
+              {/* Experience Card */}
+              <View style={styles.card} testID="experience-card">
+                <View style={styles.experienceHeader} testID="experience-header">
+                  <Ionicons name="briefcase" size={20} color="#333" />
+                  <Text style={styles.experienceTitle} testID="experience-title">Experience</Text>
                 </View>
-              ))}
+                <View style={styles.experienceContent} testID="experience-content">
+                  {filteredProfiles[currentProfileIndex].previous_titles?.map((title, index) => (
+                    <View key={index} style={styles.experienceItem} testID={`experience-item-${index}`}>
+                      <Text style={styles.experienceRole} testID={`experience-role-${index}`}>{title.title}</Text>
+                      <Text style={styles.experienceCompany} testID={`experience-company-${index}`}>{title.company}</Text>
+                      <Text style={styles.experienceDuration} testID={`experience-duration-${index}`}>{title.duration}</Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.bioSection} testID="bio-section">
+                  <Text style={styles.bioTitle} testID="bio-title">About</Text>
+                  <Text style={styles.bioText} testID="bio-content">{filteredProfiles[currentProfileIndex].bio}</Text>
+                </View>
+                <View style={styles.separator} testID="links-separator" />
+                <View style={styles.linksSection} testID="links-section">
+                  <Text style={styles.linksTitle} testID="links-title">Links</Text>
+                  <View style={styles.linksGrid} testID="links-grid">
+                    {filteredProfiles[currentProfileIndex].linkedin_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="linkedin-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].linkedin_url, '_blank')}
+                      >
+                        <Ionicons name="logo-linkedin" size={20} color="#0A66C2" />
+                        <Text style={styles.linkText}>LinkedIn</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].github_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="github-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].github_url, '_blank')}
+                      >
+                        <Ionicons name="logo-github" size={20} color="#333" />
+                        <Text style={styles.linkText}>GitHub</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].portfolio_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="portfolio-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].portfolio_url, '_blank')}
+                      >
+                        <Ionicons name="briefcase-outline" size={20} color="#666" />
+                        <Text style={styles.linkText}>Portfolio</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].twitter_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="twitter-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].twitter_url, '_blank')}
+                      >
+                        <Ionicons name="logo-twitter" size={20} color="#1DA1F2" />
+                        <Text style={styles.linkText}>Twitter</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].personal_website && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="website-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].personal_website, '_blank')}
+                      >
+                        <Ionicons name="globe-outline" size={20} color="#666" />
+                        <Text style={styles.linkText}>Website</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+                {filteredProfiles[currentProfileIndex].resume_url && (
+                  <TouchableOpacity 
+                    style={styles.resumeButton}
+                    testID="resume-button"
+                    onPress={() => window.open(filteredProfiles[currentProfileIndex].resume_url, '_blank')}
+                  >
+                    <Ionicons name="document-text-outline" size={20} color="#0A84FF" />
+                    <Text style={styles.resumeButtonText} testID="resume-button-text">View Resume</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </ScrollView>
+          ) : (
+            <View style={styles.noResults} testID="no-results">
+              <Ionicons name="search-outline" size={48} color="#999" />
+              <Text style={styles.noResultsText} testID="no-results-text">No matches found</Text>
+              <Text style={styles.noResultsSubtext} testID="no-results-subtext">Try adjusting your filters</Text>
             </View>
-          </ScrollView>
-        ) : (
-          <View style={styles.noResults}>
-            <Ionicons name="search-outline" size={48} color="#999" />
-            <Text style={styles.noResultsText}>No matches found</Text>
-            <Text style={styles.noResultsSubtext}>Try adjusting your filters</Text>
-          </View>
-        )}
+          )}
 
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity 
-            style={[styles.button, styles.passButton]} 
-            onPress={handlePass}
-          >
-            <Ionicons name="close-circle-outline" size={24} color="#666" />
-            <Text style={styles.buttonText}>Pass</Text>
-          </TouchableOpacity>
-          <View style={styles.buttonSeparator} />
-          <TouchableOpacity 
-            style={[styles.button, styles.interestedButton]} 
-            onPress={handleInterested}
-          >
-            <Ionicons name="checkmark-circle-outline" size={24} color="#0A84FF" />
-            <Text style={[styles.buttonText, styles.interestedText]}>Interested</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </SafeAreaView>
+          {/* Action Buttons */}
+          <View style={styles.actionButtons} testID="action-buttons">
+            <TouchableOpacity 
+              style={[styles.button, styles.passButton]} 
+              testID="pass-button"
+              onPress={handlePass}
+            >
+              <Ionicons name="close-circle-outline" size={24} color="#666" />
+              <Text style={styles.buttonText} testID="pass-button-text">Pass</Text>
+            </TouchableOpacity>
+            <View style={styles.buttonSeparator} testID="button-separator" />
+            <TouchableOpacity 
+              style={[styles.button, styles.interestedButton]} 
+              testID="interested-button"
+              onPress={handleInterested}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="#0A84FF" />
+              <Text style={[styles.buttonText, styles.interestedText]} testID="interested-button-text">Interested</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -539,7 +483,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    maxWidth: Platform.OS === 'web' ? 480 : '100%',
+    alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
+    minHeight: '100%',
+    borderWidth: Platform.OS === 'web' ? 1 : 0,
+    borderColor: '#e1e1e1',
+    borderRadius: Platform.OS === 'web' ? 32 : 0,
+    overflow: 'hidden',
+    ...(Platform.OS === 'web' ? {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 20,
+    } : {}),
   },
+  webContainer: Platform.OS === 'web' ? {
+    flex: 1,
+    minHeight: '100%',
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  } : {},
   header: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -630,41 +597,70 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    width: '100%',
+    paddingBottom: 80,
   },
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 16,
+    marginBottom: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderWidth: Platform.OS === 'web' ? 1 : 0,
+    borderColor: '#eee',
+    ...(Platform.OS === 'web' ? {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+    } : {}),
+  },
+  imageContainer: {
+    width: '100%',
+    height: 300,
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
   },
   profileImage: {
     width: '100%',
-    height: width * 0.8,
+    height: '100%',
+    position: 'absolute',
+    top: '50%',
+    transform: [{ translateY: -150 }],
   },
   profileInfo: {
-    padding: 16,
+    padding: 20,
+    backgroundColor: '#fff',
   },
   name: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '600',
-    color: '#000',
+    color: '#2c3e50',
     marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    color: '#34495e',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
+  location: {
+    fontSize: 16,
+    color: '#7f8c8d',
+    marginBottom: 16,
   },
   separator: {
     height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 12,
+    backgroundColor: '#ecf0f1',
+    marginVertical: 16,
   },
   detailsContainer: {
     gap: 8,
@@ -672,63 +668,163 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   detailText: {
     fontSize: 16,
-    color: '#666',
+    color: '#34495e',
+    marginLeft: 2,
   },
   experienceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    padding: 16,
-    paddingBottom: 8,
+    gap: 10,
+    padding: 20,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
   },
   experienceTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#2c3e50',
+  },
+  experienceContent: {
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  experienceItem: {
+    marginBottom: 16,
+  },
+  experienceRole: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 4,
+  },
+  experienceCompany: {
+    fontSize: 14,
+    color: '#34495e',
+    marginBottom: 2,
+  },
+  experienceDuration: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    fontWeight: '500',
+  },
+  bioSection: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  bioTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
+    marginBottom: 8,
   },
-  currentRole: {
-    padding: 16,
-    paddingTop: 8,
+  bioText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
   },
-  currentTitle: {
-    fontSize: 20,
+  skillsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  skillPills: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  skillPill: {
+    backgroundColor: '#e3f2fd',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginBottom: 6,
+  },
+  skillText: {
+    fontSize: 12,
+    color: '#1976d2',
     fontWeight: '500',
-    color: '#000',
-    marginBottom: 4,
   },
-  currentLabel: {
-    fontSize: 14,
+  noResults: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  noResultsText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 16,
+  },
+  noResultsSubtext: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 32,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#0A84FF',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  resumeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 16,
+    paddingLeft: 28,
+    marginBottom: 8,
+  },
+  resumeButtonText: {
+    fontSize: 16,
     color: '#0A84FF',
     fontWeight: '500',
-  },
-  previousRole: {
-    padding: 16,
-    paddingTop: 8,
-  },
-  jobTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 2,
-  },
-  companyName: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2,
-  },
-  duration: {
-    fontSize: 14,
-    color: '#999',
   },
   actionButtons: {
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#eee',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   button: {
     flex: 1,
@@ -766,44 +862,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  skillsContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginTop: 4,
+  linksSection: {
+    padding: 16,
+    paddingBottom: 8,
   },
-  skillPills: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  skillPill: {
-    backgroundColor: '#E8F2FF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  skillText: {
-    fontSize: 12,
-    color: '#0A84FF',
-    fontWeight: '500',
-  },
-  noResults: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  noResultsText: {
-    fontSize: 20,
+  linksTitle: {
+    fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginTop: 16,
+    marginBottom: 12,
   },
-  noResultsSubtext: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 8,
+  linksGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingBottom: 8,
   },
-}); 
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    flex: 1,
+    minWidth: '45%',
+    maxWidth: '48%',
+    height: 40,
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+});
+
+// Add a style tag for web-specific CSS if on web platform
+if (Platform.OS === 'web') {
+  const style = document.createElement('style');
+  const cssText = document.createTextNode(`
+    html, body, #root {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    @media (max-width: 480px) {
+      html, body, #root {
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      [data-testid="profile-scroll"] {
+        height: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 80px !important;
+      }
+      [data-testid="action-buttons"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        max-width: 480px !important;
+        margin: 0 auto !important;
+      }
+    }
+  `);
+  style.appendChild(cssText);
+  document.head.appendChild(style);
+} 
