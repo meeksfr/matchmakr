@@ -310,7 +310,11 @@ export default function App() {
           }),
         }} testID="profile-content">
           {filteredProfiles.length > 0 ? (
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} testID="profile-scroll">
+            <ScrollView 
+              style={styles.scrollView} 
+              contentContainerStyle={styles.scrollContent} 
+              testID="profile-scroll"
+            >
               {/* Profile Card */}
               <View style={styles.card} testID="profile-card">
                 <View style={styles.imageContainer} testID="profile-image-container">
@@ -323,7 +327,8 @@ export default function App() {
                 </View>
                 <View style={styles.profileInfo} testID="profile-info">
                   <Text style={styles.name} testID="profile-name">
-                    {filteredProfiles[currentProfileIndex].user.first_name} {filteredProfiles[currentProfileIndex].user.last_name}
+                    {filteredProfiles[currentProfileIndex].user.first_name}{' '}
+                    {filteredProfiles[currentProfileIndex].user.last_name}
                   </Text>
                   <Text style={styles.title} testID="profile-title">
                     {filteredProfiles[currentProfileIndex].current_title}
@@ -371,6 +376,62 @@ export default function App() {
                 <View style={styles.bioSection} testID="bio-section">
                   <Text style={styles.bioTitle} testID="bio-title">About</Text>
                   <Text style={styles.bioText} testID="bio-content">{filteredProfiles[currentProfileIndex].bio}</Text>
+                </View>
+                <View style={styles.separator} testID="links-separator" />
+                <View style={styles.linksSection} testID="links-section">
+                  <Text style={styles.linksTitle} testID="links-title">Links</Text>
+                  <View style={styles.linksGrid} testID="links-grid">
+                    {filteredProfiles[currentProfileIndex].linkedin_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="linkedin-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].linkedin_url, '_blank')}
+                      >
+                        <Ionicons name="logo-linkedin" size={20} color="#0A66C2" />
+                        <Text style={styles.linkText}>LinkedIn</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].github_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="github-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].github_url, '_blank')}
+                      >
+                        <Ionicons name="logo-github" size={20} color="#333" />
+                        <Text style={styles.linkText}>GitHub</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].portfolio_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="portfolio-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].portfolio_url, '_blank')}
+                      >
+                        <Ionicons name="briefcase-outline" size={20} color="#666" />
+                        <Text style={styles.linkText}>Portfolio</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].twitter_url && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="twitter-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].twitter_url, '_blank')}
+                      >
+                        <Ionicons name="logo-twitter" size={20} color="#1DA1F2" />
+                        <Text style={styles.linkText}>Twitter</Text>
+                      </TouchableOpacity>
+                    )}
+                    {filteredProfiles[currentProfileIndex].personal_website && (
+                      <TouchableOpacity 
+                        style={styles.linkButton}
+                        testID="website-link"
+                        onPress={() => window.open(filteredProfiles[currentProfileIndex].personal_website, '_blank')}
+                      >
+                        <Ionicons name="globe-outline" size={20} color="#666" />
+                        <Text style={styles.linkText}>Website</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
                 {filteredProfiles[currentProfileIndex].resume_url && (
                   <TouchableOpacity 
@@ -424,7 +485,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     maxWidth: Platform.OS === 'web' ? 480 : '100%',
     alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
-    height: '100%',
+    minHeight: '100%',
     borderWidth: Platform.OS === 'web' ? 1 : 0,
     borderColor: '#e1e1e1',
     borderRadius: Platform.OS === 'web' ? 32 : 0,
@@ -441,7 +502,7 @@ const styles = StyleSheet.create({
   },
   webContainer: Platform.OS === 'web' ? {
     flex: 1,
-    height: '100%',
+    minHeight: '100%',
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
@@ -536,23 +597,30 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    width: '100%',
+    paddingBottom: 80,
   },
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 16,
+    marginBottom: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    borderWidth: Platform.OS === 'web' ? 1 : 0,
+    borderColor: '#eee',
+    ...(Platform.OS === 'web' ? {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+    } : {}),
   },
   imageContainer: {
     width: '100%',
@@ -740,6 +808,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     padding: 16,
+    paddingLeft: 28,
+    marginBottom: 8,
   },
   resumeButtonText: {
     fontSize: 16,
@@ -751,6 +821,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#eee',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   button: {
     flex: 1,
@@ -788,18 +862,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  linksSection: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  linksTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  linksGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingBottom: 8,
+  },
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    flex: 1,
+    minWidth: '45%',
+    maxWidth: '48%',
+    height: 40,
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
 });
 
 // Add a style tag for web-specific CSS if on web platform
 if (Platform.OS === 'web') {
   const style = document.createElement('style');
-  style.textContent = `
+  const cssText = document.createTextNode(`
     html, body, #root {
-      height: 100vh;
+      height: 100%;
       margin: 0;
       padding: 0;
       background-color: #f5f5f5;
     }
-  `;
+    @media (max-width: 480px) {
+      html, body, #root {
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      [data-testid="profile-scroll"] {
+        height: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 80px !important;
+      }
+      [data-testid="action-buttons"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        max-width: 480px !important;
+        margin: 0 auto !important;
+      }
+    }
+  `);
+  style.appendChild(cssText);
   document.head.appendChild(style);
 } 

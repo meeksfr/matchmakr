@@ -1,116 +1,84 @@
 import axios from 'axios';
-import { UserProfile, Skill } from '../types';
 
-const API_URL = 'http://localhost:8000/api/v1';
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-export interface Company {
+export interface Skill {
   id: number;
   name: string;
   description: string;
-  website: string;
-  location: string;
-  created_by: number;
 }
 
-export interface JobPosting {
+export interface PreviousTitle {
   id: number;
   title: string;
-  company: Company;
-  description: string;
-  requirements: string;
-  required_skills: Skill[];
-  preferred_skills: Skill[];
-  location: string;
-  salary_min: number | null;
-  salary_max: number | null;
-  employment_type: string;
-  experience_level: string;
-  is_remote: boolean;
-  is_active: boolean;
-  application_deadline: string;
+  company: string;
+  duration: string;
 }
 
-export interface Match {
+export interface UserProfile {
   id: number;
-  job: JobPosting;
-  candidate: {
+  user: {
     id: number;
     username: string;
     first_name: string;
     last_name: string;
+    email: string;
   };
-  score: number;
-  match_type: 'ALGORITHM' | 'MANUAL';
+  bio: string;
+  years_of_experience: number;
+  is_employer: boolean;
+  skills: Skill[];
+  image_url: string;
+  resume_url: string;
+  linkedin_url: string;
+  github_url: string;
+  portfolio_url: string;
+  twitter_url: string;
+  personal_website: string;
+  age: number;
+  location: string;
+  role_type: string;
+  current_title: string;
+  previous_titles: PreviousTitle[];
   created_at: string;
+  updated_at: string;
 }
 
 export const fetchCandidates = async (): Promise<UserProfile[]> => {
   try {
-    const response = await fetch(`${API_URL}/profiles/?is_employer=false`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch candidates');
-    }
-    return await response.json();
+    const response = await axios.get('http://127.0.0.1:8000/api/v1/profiles/');
+    return response.data;
   } catch (error) {
     console.error('Error fetching candidates:', error);
     throw error;
   }
 };
 
-export const fetchJobs = async () => {
-  const response = await api.get<JobPosting[]>('/jobs/');
-  return response.data;
-};
-
-export const fetchMatches = async (jobId: number) => {
-  const response = await api.get<Match[]>(`/matches/?job=${jobId}`);
-  return response.data;
-};
-
-export const createMatch = async (jobId: number, userId: number, matchType: string) => {
-  const response = await api.post('/matches/', {
-    job: jobId,
-    candidate: userId,
-    match_type: matchType,
-  });
-  return response.data;
-};
-
-export const deleteMatch = async (matchId: number) => {
-  await api.delete(`/matches/${matchId}/`);
-};
-
 export const fetchSkills = async (): Promise<Skill[]> => {
   try {
-    const response = await fetch(`${API_URL}/skills/`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch skills');
-    }
-    return await response.json();
+    const response = await axios.get('http://127.0.0.1:8000/api/v1/skills/');
+    return response.data;
   } catch (error) {
     console.error('Error fetching skills:', error);
     throw error;
   }
 };
 
-export const fetchLocations = async () => {
-  const response = await api.get('/jobs/locations/');
-  return response.data;
-};
-
-export const setAuthToken = (token: string) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common['Authorization'];
+export const createMatch = async (userId: number, jobId: number): Promise<void> => {
+  try {
+    await axios.post('http://127.0.0.1:8000/api/v1/matches/', {
+      user_id: userId,
+      job_id: jobId,
+    });
+  } catch (error) {
+    console.error('Error creating match:', error);
+    throw error;
   }
 };
 
-export { UserProfile, Skill }; 
+export const deleteMatch = async (userId: number, jobId: number): Promise<void> => {
+  try {
+    await axios.delete(`http://127.0.0.1:8000/api/v1/matches/${userId}/${jobId}/`);
+  } catch (error) {
+    console.error('Error deleting match:', error);
+    throw error;
+  }
+}; 
