@@ -1,9 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { View, StyleSheet, SafeAreaView, Text, Image, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchCandidates, fetchSkills, UserProfile, createMatch, deleteMatch, Skill } from './services/api';
 
 const { width } = Dimensions.get('window');
+
+// Use a default image URL instead of a local asset
+const DEFAULT_PROFILE_IMAGE = 'https://via.placeholder.com/300';
 
 type FilterType = 'experience' | 'roleType' | 'location' | 'skills';
 
@@ -43,15 +46,34 @@ export default function App() {
   const checkmarkScale = useRef(new Animated.Value(0)).current;
   const xMarkScale = useRef(new Animated.Value(0)).current;
 
-  // Fetch initial data
+  // Memoize current profile data to prevent unnecessary re-renders
+  const currentProfile = useMemo(() => 
+    filteredProfiles[currentProfileIndex] || null,
+    [filteredProfiles, currentProfileIndex]
+  );
+
+  // Prefetch next profile's image
+  const prefetchNextProfile = useCallback((index: number) => {
+    const nextProfile = filteredProfiles[(index + 1) % filteredProfiles.length];
+    if (nextProfile?.image_url && Platform.OS !== 'web') {
+      Image.prefetch(nextProfile.image_url).catch(() => {
+        // Silently handle prefetch errors
+      });
+    }
+  }, [filteredProfiles]);
+
+  // Batch fetch profiles
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        
+        // Fetch data in parallel
         const [candidatesData, skillsData] = await Promise.all([
           fetchCandidates(),
           fetchSkills()
         ]);
+
         setProfiles(candidatesData);
         setFilteredProfiles(candidatesData);
         setAvailableSkills(skillsData.map((skill: Skill) => skill.name));
@@ -67,15 +89,13 @@ export default function App() {
     loadData();
   }, []);
 
-  const filters: FilterOptions = {
-    experience: ['0-2 years', '3-5 years', '5+ years'],
-    roleType: ['Full-time', 'Contract', 'Remote'],
-    location: ['San Francisco', 'New York', 'Remote'],
-    skills: availableSkills
-  };
-
-  // Apply filters whenever selectedFilters changes
+  // Prefetch next profile when current index changes
   useEffect(() => {
+    prefetchNextProfile(currentProfileIndex);
+  }, [currentProfileIndex, prefetchNextProfile]);
+
+  // Optimize filtered profiles calculation
+  const updateFilteredProfiles = useCallback(() => {
     let filtered = profiles;
 
     if (selectedFilters.experience) {
@@ -84,7 +104,6 @@ export default function App() {
         if (max) {
           return profile.years_of_experience >= min && profile.years_of_experience <= max;
         } else {
-          // Handle "5+ years" case
           return profile.years_of_experience >= min;
         }
       });
@@ -98,38 +117,53 @@ export default function App() {
 
     setFilteredProfiles(filtered);
     setCurrentProfileIndex(0);
-  }, [selectedFilters, profiles]);
+  }, [profiles, selectedFilters]);
 
-  const handleInterested = () => {
-    // Animate card sliding right
+  useEffect(() => {
+    updateFilteredProfiles();
+  }, [selectedFilters, profiles, updateFilteredProfiles]);
+
+  const handleInterested = useCallback(() => {
+    const nextIndex = (currentProfileIndex + 1) % filteredProfiles.length;
+    
+    // Start prefetching next profile's image immediately
+    prefetchNextProfile(nextIndex);
+
+    // Animate card sliding right with optimized spring physics
     Animated.sequence([
       Animated.parallel([
-        Animated.timing(slideAnim, {
+        Animated.spring(slideAnim, {
           toValue: width,
-          duration: 300,
+          damping: 20,
+          mass: 0.8,
+          stiffness: 150,
           useNativeDriver: true,
+          restSpeedThreshold: 100,
+          restDisplacementThreshold: 40,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 300,
+          duration: 250,
           useNativeDriver: true,
         }),
-        // Show and hide checkmark
         Animated.sequence([
-          Animated.timing(checkmarkScale, {
+          Animated.spring(checkmarkScale, {
             toValue: 1,
-            duration: 200,
+            damping: 20,
+            mass: 0.8,
+            stiffness: 150,
             useNativeDriver: true,
+            restSpeedThreshold: 100,
+            restDisplacementThreshold: 40,
           }),
-          Animated.delay(300),
+          Animated.delay(250),
           Animated.timing(checkmarkScale, {
             toValue: 0,
-            duration: 200,
+            duration: 150,
             useNativeDriver: true,
           }),
         ]),
       ]),
-      // Reset position for next card
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 0,
@@ -143,41 +177,51 @@ export default function App() {
         }),
       ]),
     ]).start(() => {
-      // Move to next profile
-      setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
+      setCurrentProfileIndex(nextIndex);
     });
-  };
+  }, [currentProfileIndex, filteredProfiles.length, prefetchNextProfile, slideAnim, fadeAnim, checkmarkScale]);
 
-  const handlePass = () => {
-    // Animate card sliding left
+  const handlePass = useCallback(() => {
+    const nextIndex = (currentProfileIndex + 1) % filteredProfiles.length;
+    
+    // Start prefetching next profile's image immediately
+    prefetchNextProfile(nextIndex);
+
+    // Animate card sliding left with optimized spring physics
     Animated.sequence([
       Animated.parallel([
-        Animated.timing(slideAnim, {
+        Animated.spring(slideAnim, {
           toValue: -width,
-          duration: 300,
+          damping: 20,
+          mass: 0.8,
+          stiffness: 150,
           useNativeDriver: true,
+          restSpeedThreshold: 100,
+          restDisplacementThreshold: 40,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 300,
+          duration: 250,
           useNativeDriver: true,
         }),
-        // Show and hide X mark
         Animated.sequence([
-          Animated.timing(xMarkScale, {
+          Animated.spring(xMarkScale, {
             toValue: 1,
-            duration: 200,
+            damping: 20,
+            mass: 0.8,
+            stiffness: 150,
             useNativeDriver: true,
+            restSpeedThreshold: 100,
+            restDisplacementThreshold: 40,
           }),
-          Animated.delay(300),
+          Animated.delay(250),
           Animated.timing(xMarkScale, {
             toValue: 0,
-            duration: 200,
+            duration: 150,
             useNativeDriver: true,
           }),
         ]),
       ]),
-      // Reset position for next card
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 0,
@@ -191,10 +235,9 @@ export default function App() {
         }),
       ]),
     ]).start(() => {
-      // Move to next profile
-      setCurrentProfileIndex((prev) => (prev + 1) % filteredProfiles.length);
+      setCurrentProfileIndex(nextIndex);
     });
-  };
+  }, [currentProfileIndex, filteredProfiles.length, prefetchNextProfile, slideAnim, fadeAnim, xMarkScale]);
 
   const handleFilterPress = (filterType: FilterType) => {
     setActiveFilter(activeFilter === filterType ? null : filterType);
@@ -206,6 +249,13 @@ export default function App() {
       [filterType]: value
     }));
     setActiveFilter(null);
+  };
+
+  const filters: FilterOptions = {
+    experience: ['0-2 years', '3-5 years', '5+ years'],
+    roleType: ['Full-time', 'Contract', 'Remote'],
+    location: ['San Francisco', 'New York', 'Remote'],
+    skills: availableSkills
   };
 
   if (loading) {
@@ -304,50 +354,79 @@ export default function App() {
         <Animated.View style={{
           flex: 1,
           transform: [{ translateX: slideAnim }],
-          opacity: fadeAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 1],
-          }),
+          opacity: fadeAnim,
         }} testID="profile-content">
-          {filteredProfiles.length > 0 ? (
+          {currentProfile ? (
             <ScrollView 
               style={styles.scrollView} 
-              contentContainerStyle={styles.scrollContent} 
+              contentContainerStyle={styles.scrollContent}
+              removeClippedSubviews={true}
+              scrollEventThrottle={8}
+              showsVerticalScrollIndicator={false}
+              overScrollMode="never"
+              decelerationRate={Platform.OS === 'ios' ? 'fast' : 0.985}
+              bounces={false}
+              bouncesZoom={false}
+              alwaysBounceVertical={false}
+              snapToAlignment="start"
               testID="profile-scroll"
+              contentInsetAdjustmentBehavior="automatic"
+              onMomentumScrollBegin={() => {
+                // Disable JavaScript events during momentum scroll
+                if (Platform.OS === 'web') {
+                  document.body.style.pointerEvents = 'none';
+                }
+              }}
+              onMomentumScrollEnd={() => {
+                // Re-enable JavaScript events after momentum scroll
+                if (Platform.OS === 'web') {
+                  document.body.style.pointerEvents = 'auto';
+                }
+              }}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: new Animated.Value(0) } } }],
+                { 
+                  useNativeDriver: true,
+                  listener: () => {
+                    // Optional: Add custom scroll handling if needed
+                  },
+                }
+              )}
             >
               {/* Profile Card */}
-              <View style={styles.card} testID="profile-card">
+              <View style={[styles.card, styles.profileCard]} testID="profile-card">
                 <View style={styles.imageContainer} testID="profile-image-container">
                   <Image
-                    source={{ uri: filteredProfiles[currentProfileIndex].image_url }}
+                    source={{ uri: currentProfile.image_url || DEFAULT_PROFILE_IMAGE }}
                     style={styles.profileImage}
                     testID="profile-image"
                     resizeMode="cover"
+                    fadeDuration={0}
                   />
                 </View>
                 <View style={styles.profileInfo} testID="profile-info">
                   <Text style={styles.name} testID="profile-name">
-                    {filteredProfiles[currentProfileIndex].user.first_name}{' '}
-                    {filteredProfiles[currentProfileIndex].user.last_name}
+                    {currentProfile.user.first_name}{' '}
+                    {currentProfile.user.last_name}
                   </Text>
                   <Text style={styles.title} testID="profile-title">
-                    {filteredProfiles[currentProfileIndex].current_title}
+                    {currentProfile.current_title}
                   </Text>
                   <Text style={styles.location} testID="profile-location">
-                    {filteredProfiles[currentProfileIndex].location}
+                    {currentProfile.location}
                   </Text>
                   <View style={styles.separator} testID="profile-separator" />
                   <View style={styles.detailsContainer} testID="profile-details">
                     <View style={styles.detailItem} testID="experience-section">
                       <Ionicons name="briefcase-outline" size={16} color="#666" />
                       <Text style={styles.detailText} testID="experience-text">
-                        {filteredProfiles[currentProfileIndex].years_of_experience} years experience • {filteredProfiles[currentProfileIndex].role_type}
+                        {currentProfile.years_of_experience} years experience • {currentProfile.role_type}
                       </Text>
                     </View>
                     <View style={styles.skillsContainer} testID="skills-section">
                       <Ionicons name="code-outline" size={16} color="#666" />
                       <View style={styles.skillPills} testID="skills-list">
-                        {filteredProfiles[currentProfileIndex].skills.map((skill, index) => (
+                        {currentProfile.skills.map((skill, index) => (
                           <View key={index} style={styles.skillPill} testID={`skill-pill-${index}`}>
                             <Text style={styles.skillText} testID={`skill-text-${index}`}>{skill.name}</Text>
                           </View>
@@ -359,13 +438,13 @@ export default function App() {
               </View>
 
               {/* Experience Card */}
-              <View style={styles.card} testID="experience-card">
+              <View style={[styles.card, styles.experienceCard]} testID="experience-card">
                 <View style={styles.experienceHeader} testID="experience-header">
                   <Ionicons name="briefcase" size={20} color="#333" />
                   <Text style={styles.experienceTitle} testID="experience-title">Experience</Text>
                 </View>
                 <View style={styles.experienceContent} testID="experience-content">
-                  {filteredProfiles[currentProfileIndex].previous_titles?.map((title, index) => (
+                  {currentProfile.previous_titles?.map((title, index) => (
                     <View key={index} style={styles.experienceItem} testID={`experience-item-${index}`}>
                       <Text style={styles.experienceRole} testID={`experience-role-${index}`}>{title.title}</Text>
                       <Text style={styles.experienceCompany} testID={`experience-company-${index}`}>{title.company}</Text>
@@ -375,57 +454,57 @@ export default function App() {
                 </View>
                 <View style={styles.bioSection} testID="bio-section">
                   <Text style={styles.bioTitle} testID="bio-title">About</Text>
-                  <Text style={styles.bioText} testID="bio-content">{filteredProfiles[currentProfileIndex].bio}</Text>
+                  <Text style={styles.bioText} testID="bio-content">{currentProfile.bio}</Text>
                 </View>
                 <View style={styles.separator} testID="links-separator" />
                 <View style={styles.linksSection} testID="links-section">
                   <Text style={styles.linksTitle} testID="links-title">Links</Text>
                   <View style={styles.linksGrid} testID="links-grid">
-                    {filteredProfiles[currentProfileIndex].linkedin_url && (
+                    {currentProfile.linkedin_url && (
                       <TouchableOpacity 
                         style={styles.linkButton}
                         testID="linkedin-link"
-                        onPress={() => window.open(filteredProfiles[currentProfileIndex].linkedin_url, '_blank')}
+                        onPress={() => window.open(currentProfile.linkedin_url, '_blank')}
                       >
                         <Ionicons name="logo-linkedin" size={20} color="#0A66C2" />
                         <Text style={styles.linkText}>LinkedIn</Text>
                       </TouchableOpacity>
                     )}
-                    {filteredProfiles[currentProfileIndex].github_url && (
+                    {currentProfile.github_url && (
                       <TouchableOpacity 
                         style={styles.linkButton}
                         testID="github-link"
-                        onPress={() => window.open(filteredProfiles[currentProfileIndex].github_url, '_blank')}
+                        onPress={() => window.open(currentProfile.github_url, '_blank')}
                       >
                         <Ionicons name="logo-github" size={20} color="#333" />
                         <Text style={styles.linkText}>GitHub</Text>
                       </TouchableOpacity>
                     )}
-                    {filteredProfiles[currentProfileIndex].portfolio_url && (
+                    {currentProfile.portfolio_url && (
                       <TouchableOpacity 
                         style={styles.linkButton}
                         testID="portfolio-link"
-                        onPress={() => window.open(filteredProfiles[currentProfileIndex].portfolio_url, '_blank')}
+                        onPress={() => window.open(currentProfile.portfolio_url, '_blank')}
                       >
                         <Ionicons name="briefcase-outline" size={20} color="#666" />
                         <Text style={styles.linkText}>Portfolio</Text>
                       </TouchableOpacity>
                     )}
-                    {filteredProfiles[currentProfileIndex].twitter_url && (
+                    {currentProfile.twitter_url && (
                       <TouchableOpacity 
                         style={styles.linkButton}
                         testID="twitter-link"
-                        onPress={() => window.open(filteredProfiles[currentProfileIndex].twitter_url, '_blank')}
+                        onPress={() => window.open(currentProfile.twitter_url, '_blank')}
                       >
                         <Ionicons name="logo-twitter" size={20} color="#1DA1F2" />
                         <Text style={styles.linkText}>Twitter</Text>
                       </TouchableOpacity>
                     )}
-                    {filteredProfiles[currentProfileIndex].personal_website && (
+                    {currentProfile.personal_website && (
                       <TouchableOpacity 
                         style={styles.linkButton}
                         testID="website-link"
-                        onPress={() => window.open(filteredProfiles[currentProfileIndex].personal_website, '_blank')}
+                        onPress={() => window.open(currentProfile.personal_website, '_blank')}
                       >
                         <Ionicons name="globe-outline" size={20} color="#666" />
                         <Text style={styles.linkText}>Website</Text>
@@ -433,11 +512,11 @@ export default function App() {
                     )}
                   </View>
                 </View>
-                {filteredProfiles[currentProfileIndex].resume_url && (
+                {currentProfile.resume_url && (
                   <TouchableOpacity 
                     style={styles.resumeButton}
                     testID="resume-button"
-                    onPress={() => window.open(filteredProfiles[currentProfileIndex].resume_url, '_blank')}
+                    onPress={() => window.open(currentProfile.resume_url, '_blank')}
                   >
                     <Ionicons name="document-text-outline" size={20} color="#0A84FF" />
                     <Text style={styles.resumeButtonText} testID="resume-button-text">View Resume</Text>
@@ -598,16 +677,19 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     width: '100%',
-    paddingBottom: 80,
+    ...(Platform.OS === 'web' ? {
+      WebkitOverflowScrolling: 'touch',
+    } : {}),
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: Platform.OS === 'web' ? 56 : 72,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: Platform.OS === 'web' ? 16 : 0,
     marginBottom: 24,
     overflow: 'hidden',
     borderWidth: Platform.OS === 'web' ? 1 : 0,
@@ -620,6 +702,32 @@ const styles = StyleSheet.create({
       },
       shadowOpacity: 0.1,
       shadowRadius: 8,
+      elevation: 4,
+    } : Platform.OS === 'android' ? {
+      elevation: 4,
+    } : {
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+    }),
+  },
+  profileCard: {
+    backfaceVisibility: 'hidden',
+    ...(Platform.OS === 'web' ? {
+      transform: 'translateZ(0)',
+      perspective: 1000,
+    } : {}),
+  },
+  experienceCard: {
+    backfaceVisibility: 'hidden',
+    marginBottom: 24,
+    ...(Platform.OS === 'web' ? {
+      transform: 'translateZ(0)',
+      perspective: 1000,
     } : {}),
   },
   imageContainer: {
@@ -628,6 +736,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
+    ...(Platform.OS === 'web' ? {
+      transform: 'translateZ(0)',
+      backfaceVisibility: 'hidden',
+    } : {}),
   },
   profileImage: {
     width: '100%',
@@ -635,6 +747,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     transform: [{ translateY: -150 }],
+    ...(Platform.OS === 'web' ? {
+      willChange: 'transform',
+      backfaceVisibility: 'hidden',
+    } : {}),
   },
   profileInfo: {
     padding: 20,
@@ -807,9 +923,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    padding: 16,
+    padding: 12,
     paddingLeft: 28,
-    marginBottom: 8,
+    marginBottom: 0,
+    borderBottomWidth: 0,
   },
   resumeButtonText: {
     fontSize: 16,
@@ -819,12 +936,12 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopWidth: 0,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    marginTop: -1,
   },
   button: {
     flex: 1,
@@ -864,7 +981,7 @@ const styles = StyleSheet.create({
   },
   linksSection: {
     padding: 16,
-    paddingBottom: 8,
+    paddingBottom: Platform.OS === 'web' ? 0 : 16,
   },
   linksTitle: {
     fontSize: 18,
@@ -876,7 +993,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    paddingBottom: 8,
+    paddingBottom: 0,
   },
   linkButton: {
     flexDirection: 'row',
@@ -890,6 +1007,7 @@ const styles = StyleSheet.create({
     minWidth: '45%',
     maxWidth: '48%',
     height: 40,
+    marginBottom: Platform.OS === 'web' ? 0 : 8,
   },
   linkText: {
     fontSize: 14,
@@ -898,7 +1016,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Add a style tag for web-specific CSS if on web platform
+// Update web-specific CSS
 if (Platform.OS === 'web') {
   const style = document.createElement('style');
   const cssText = document.createTextNode(`
@@ -907,26 +1025,77 @@ if (Platform.OS === 'web') {
       margin: 0;
       padding: 0;
       background-color: #f5f5f5;
+      overscroll-behavior: none;
     }
+    
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+    
+    [data-testid="profile-scroll"] {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      overscroll-behavior: none;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000;
+      will-change: transform;
+      height: calc(100vh - 140px) !important;
+      max-height: calc(100vh - 140px) !important;
+    }
+    
     @media (max-width: 480px) {
       html, body, #root {
         height: 100%;
-        overflow-y: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
       }
+      [data-testid="app-container"] {
+        border-radius: 0 !important;
+      }
       [data-testid="profile-scroll"] {
-        height: auto !important;
+        height: calc(100vh - 180px) !important;
+        max-height: calc(100vh - 180px) !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 80px !important;
+        padding-bottom: 56px !important;
       }
       [data-testid="action-buttons"] {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        max-width: 480px !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        margin-top: -1px !important;
+        transform: translateZ(0);
+        z-index: 1000;
+      }
+      [data-testid="profile-card"],
+      [data-testid="experience-card"] {
+        border-radius: 16px !important;
+      }
+      [data-testid="profile-image-container"] {
+        border-radius: 16px 16px 0 0 !important;
+      }
+      [data-testid="links-section"] {
+        padding: 16px !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+      }
+      [data-testid="links-grid"] {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+      }
+      [data-testid="resume-button"] {
+        margin-bottom: 0 !important;
+        padding-bottom: 12px !important;
+        border-bottom: none !important;
+      }
+      [data-testid="experience-card"] {
+        padding-bottom: 0 !important;
+        border-bottom: none !important;
       }
     }
   `);
