@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
     Skill, UserProfile, Company, JobPosting,
-    Application, Match
+    Application, Match, PreviousTitle
 )
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,18 +13,26 @@ class UserSerializer(serializers.ModelSerializer):
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
-        fields = '__all__'
+        fields = ['id', 'name', 'description']
+
+class PreviousTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreviousTitle
+        fields = ['id', 'title', 'company', 'duration']
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
-    skill_ids = serializers.PrimaryKeyRelatedField(
-        many=True, write_only=True, queryset=Skill.objects.all(), source='skills'
-    )
+    previous_titles = PreviousTitleSerializer(many=True, read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = [
+            'id', 'user', 'bio', 'years_of_experience', 'is_employer',
+            'skills', 'image_url', 'resume_url', 'linkedin_url',
+            'age', 'location', 'role_type', 'current_title',
+            'previous_titles', 'created_at', 'updated_at'
+        ]
 
 class CompanySerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
