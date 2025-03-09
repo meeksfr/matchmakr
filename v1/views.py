@@ -17,23 +17,28 @@ from .serializers import (
 
 # Create your views here.
 
+class TestItemViewSet(viewsets.ModelViewSet):
+    queryset = TestItem.objects.all()
+    serializer_class = TestItemSerializer
+    permission_classes = [AllowAny]  # For testing purposes only
+
 class SkillViewSet(viewsets.ModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
-    permission_classes = [AllowAny]  # Temporarily allow all access for development
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description']
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [AllowAny]  # Temporarily allow all access for development
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Users can only see their own profile unless they're staff
         if self.request.user.is_staff:
             return UserProfile.objects.all()
-        return UserProfile.objects.all()  # Temporarily return all profiles for development
+        return UserProfile.objects.filter(user=self.request.user)
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()

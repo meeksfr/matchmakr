@@ -19,20 +19,9 @@ class Skill(models.Model):
         return self.name
 
 class UserProfile(models.Model):
-    ROLE_TYPE_CHOICES = [
-        ('CANDIDATE', 'Candidate'),
-        ('EMPLOYER', 'Employer'),
-        ('ADMIN', 'Admin'),
-    ]
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_employer = models.BooleanField(default=False)
     bio = models.TextField(blank=True)
-    image_url = models.URLField(blank=True)
-    age = models.PositiveIntegerField(null=True, blank=True)
-    location = models.CharField(max_length=200, blank=True)
-    role_type = models.CharField(max_length=20, choices=ROLE_TYPE_CHOICES, default='CANDIDATE')
-    current_title = models.CharField(max_length=200, blank=True)
     skills = models.ManyToManyField(Skill, related_name='users')
     years_of_experience = models.PositiveIntegerField(default=0)
     resume_url = models.URLField(blank=True)
@@ -137,12 +126,3 @@ class Match(models.Model):
 
     def __str__(self):
         return f"Match: {self.candidate.username} - {self.job.title} ({self.score}%)"
-
-class PreviousTitle(models.Model):
-    title = models.CharField(max_length=200)
-    company = models.CharField(max_length=200)
-    duration = models.CharField(max_length=100)  # e.g. "2020-2023"
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='previous_titles')
-    
-    def __str__(self):
-        return f"{self.title} at {self.company} ({self.duration})"
