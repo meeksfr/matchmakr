@@ -85,4 +85,66 @@ export const deleteMatch = async (userId: number, jobId: number): Promise<void> 
     console.error('Error deleting match:', error);
     throw error;
   }
+};
+
+export interface SignupData {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  bio?: string;
+  age?: number;
+  location?: string;
+  roleType?: string;
+  currentTitle?: string;
+  yearsOfExperience?: number;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  imageUrl?: string;
+}
+
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  user: UserProfile;
+}
+
+export const signup = async (data: SignupData): Promise<AuthResponse> => {
+  const response = await fetch('/api/v1/signup/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to create account');
+  }
+
+  return response.json();
+};
+
+export const login = async (data: LoginData): Promise<AuthResponse> => {
+  const response = await fetch('/api/v1/login/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Invalid credentials');
+  }
+
+  return response.json();
 }; 

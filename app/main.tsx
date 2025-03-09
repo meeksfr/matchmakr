@@ -13,10 +13,18 @@ const MOCK_CANDIDATES = [
     bio: 'Passionate about building scalable web applications and solving complex problems.',
     imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg'
   },
-  // Add more mock candidates as needed
+  {
+    id: 2,
+    name: 'Jane Smith',
+    title: 'Full Stack Developer',
+    location: 'New York, NY',
+    yearsExperience: 3,
+    bio: 'Full stack developer with a focus on React and Node.js. Love building user-friendly applications.',
+    imageUrl: 'https://randomuser.me/api/portraits/women/1.jpg'
+  },
 ];
 
-export default function RootLayout() {
+export default function MainView() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
 
@@ -147,4 +155,4 @@ const styles = StyleSheet.create({
   acceptButton: {
     backgroundColor: '#e8f5e9',
   },
-});
+}); 

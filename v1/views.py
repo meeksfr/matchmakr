@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from .models import (
     Skill, UserProfile, Company, JobPosting,
     Application, Match
@@ -162,3 +163,72 @@ class MatchViewSet(viewsets.ModelViewSet):
             # Calculate matches for candidate
             # TODO: Implement matching algorithm
             return Response({'detail': 'Matches calculation initiated'})
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup(request):
+    try:
+        data = request.data
+        
+        # Create user
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=data['password'],
+            first_name=data['firstName'],
+            last_name=data['lastName']
+        )
+
+        # Create user profile
+        profile = UserProfile.objects.create(
+            user=user,
+            bio=data.get('bio', ''),
+            age=int(data.get('age', 0)),
+            location=data.get('location', ''),
+            role_type=data.get('roleType', ''),
+            current_title=data.get('currentTitle', ''),
+            years_of_experience=int(data.get('yearsOfExperience', 0)),
+            github_url=data.get('githubUrl', ''),
+            linkedin_url=data.get('linkedinUrl', ''),
+            portfolio_url=data.get('portfolioUrl', ''),
+            image_url=data.get('imageUrl', '')
+        )
+
+        # Log the user in
+        login(request, user)
+        
+        return Response({
+            'message': 'User created successfully',
+            'user': UserProfileSerializer(profile).data
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    try:
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            profile = UserProfile.objects.get(user=user)
+            return Response({
+                'message': 'Login successful',
+                'user': UserProfileSerializer(profile).data
+            })
+        else:
+            return Response({
+                'message': 'Invalid credentials'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception as e:
+        return Response({
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)

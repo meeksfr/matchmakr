@@ -25,6 +25,14 @@ export default function LandingPage() {
               <Text style={[styles.buttonText, styles.signupText]}>Sign Up</Text>
             </Pressable>
           </Link>
+
+          <View style={styles.buttonSpacer} />
+          
+          <Link href="pages/main" style={styles.link}>
+            <Pressable style={[styles.button, styles.skipButton]}>
+              <Text style={[styles.buttonText, styles.skipText]}>Skip to Main</Text>
+            </Pressable>
+          </Link>
         </View>
       </View>
     </View>
@@ -91,5 +99,13 @@ const styles = StyleSheet.create({
   },
   signupText: {
     color: '#fff',
+  },
+  skipButton: {
+    backgroundColor: '#f0f0f0',
+    borderWidth: 2,
+    borderColor: '#666',
+  },
+  skipText: {
+    color: '#666',
   },
 }); 

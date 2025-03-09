@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LandingPage() {
   return (
@@ -12,18 +13,22 @@ export default function LandingPage() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Link href="login" style={styles.link}>
-            <Pressable style={[styles.button, styles.loginButton]}>
+          <Link href="/login" asChild>
+            <TouchableOpacity style={[styles.button, styles.loginButton]}>
               <Text style={[styles.buttonText, styles.loginText]}>Log In</Text>
-            </Pressable>
+            </TouchableOpacity>
           </Link>
           
-          <View style={styles.buttonSpacer} />
-          
-          <Link href="signup" style={styles.link}>
-            <Pressable style={[styles.button, styles.signupButton]}>
+          <Link href="/signup" asChild>
+            <TouchableOpacity style={[styles.button, styles.signupButton]}>
               <Text style={[styles.buttonText, styles.signupText]}>Sign Up</Text>
-            </Pressable>
+            </TouchableOpacity>
+          </Link>
+
+          <Link href="/main" asChild>
+            <TouchableOpacity style={[styles.button, styles.skipButton]}>
+              <Text style={[styles.buttonText, styles.skipText]}>Skip to Main</Text>
+            </TouchableOpacity>
           </Link>
         </View>
       </View>
@@ -61,12 +66,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-  },
-  buttonSpacer: {
-    height: 16,
-  },
-  link: {
-    width: '100%',
+    gap: 16,
   },
   button: {
     width: '100%',
@@ -91,5 +91,13 @@ const styles = StyleSheet.create({
   },
   signupText: {
     color: '#fff',
+  },
+  skipButton: {
+    backgroundColor: '#f0f0f0',
+    borderWidth: 2,
+    borderColor: '#666',
+  },
+  skipText: {
+    color: '#666',
   },
 }); 
