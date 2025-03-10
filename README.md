@@ -5,6 +5,14 @@ A job matching platform built with Django and React Native/Expo.
 ## Quick Start with Docker
 
 ### Prerequisites
+
+#### Docker Setup
+- Download Docker Desktop from [Docker's official website](https://www.docker.com/products/docker-desktop/)
+- Install Docker Desktop
+- Start Docker Desktop and wait for it to fully initialize (whale icon in menu bar should stop animating)
+- Ensure Docker Desktop has at least 4GB of memory allocated (Settings -> Resources -> Memory)
+
+#### Required Software
 - Docker
 - Docker Compose
 
