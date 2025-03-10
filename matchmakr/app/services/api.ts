@@ -1,8 +1,18 @@
 import axios from 'axios';
 
-// Configure axios defaults
-const token = 'dc0dab3d4d7d48cafd2e6e6d03d6615e88fcd5a2';
-axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api/v1/',
+});
+
+// Add request interceptor to add auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Token ${token}`;
+  }
+  return config;
+});
 
 export interface Skill {
   id: number;
@@ -46,9 +56,25 @@ export interface UserProfile {
   updated_at: string;
 }
 
+export const login = async (email: string, password: string): Promise<{ token: string }> => {
+  try {
+    const response = await api.post('auth/login/', { email, password });
+    const { token } = response.data;
+    localStorage.setItem('auth_token', token);
+    return { token };
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('auth_token');
+};
+
 export const fetchCandidates = async (): Promise<UserProfile[]> => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/v1/profiles/');
+    const response = await api.get('profiles/');
     return response.data;
   } catch (error) {
     console.error('Error fetching candidates:', error);
@@ -58,7 +84,7 @@ export const fetchCandidates = async (): Promise<UserProfile[]> => {
 
 export const fetchSkills = async (): Promise<Skill[]> => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/v1/skills/');
+    const response = await api.get('skills/');
     return response.data;
   } catch (error) {
     console.error('Error fetching skills:', error);
@@ -68,7 +94,7 @@ export const fetchSkills = async (): Promise<Skill[]> => {
 
 export const createMatch = async (userId: number, jobId: number): Promise<void> => {
   try {
-    await axios.post('http://127.0.0.1:8000/api/v1/matches/', {
+    await api.post('matches/', {
       user_id: userId,
       job_id: jobId,
     });
@@ -80,7 +106,7 @@ export const createMatch = async (userId: number, jobId: number): Promise<void> 
 
 export const deleteMatch = async (userId: number, jobId: number): Promise<void> => {
   try {
-    await axios.delete(`http://127.0.0.1:8000/api/v1/matches/${userId}/${jobId}/`);
+    await api.delete(`matches/${userId}/${jobId}/`);
   } catch (error) {
     console.error('Error deleting match:', error);
     throw error;

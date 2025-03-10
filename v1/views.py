@@ -20,25 +20,28 @@ from .serializers import (
 class SkillViewSet(viewsets.ModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description']
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['current_title', 'location', 'bio']
 
     def get_queryset(self):
-        # Users can only see their own profile unless they're staff
-        if self.request.user.is_staff:
-            return UserProfile.objects.all()
-        return UserProfile.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            if self.request.user.is_staff:
+                return UserProfile.objects.all()
+            return UserProfile.objects.filter(user=self.request.user)
+        return UserProfile.objects.all()  # Return all profiles for anonymous users
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description', 'location']
 
@@ -48,7 +51,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
 class JobPostingViewSet(viewsets.ModelViewSet):
     queryset = JobPosting.objects.all()
     serializer_class = JobPostingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description', 'requirements', 'location']
 
@@ -100,9 +103,11 @@ class JobPostingViewSet(viewsets.ModelViewSet):
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Application.objects.all()  # Return all applications for anonymous users
         user = self.request.user
         if user.profile.is_employer:
             # Employers see applications for their company's jobs
@@ -136,9 +141,11 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Match.objects.all()  # Return all matches for anonymous users
         user = self.request.user
         if user.profile.is_employer:
             # Employers see matches for their company's jobs
