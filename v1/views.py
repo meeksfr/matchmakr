@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from .models import (
     Skill, UserProfile, Company, JobPosting,
     Application, Match
@@ -14,6 +16,68 @@ from .serializers import (
     CompanySerializer, JobPostingSerializer, ApplicationSerializer,
     MatchSerializer
 )
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_user(request):
+    """
+    Register a new user and create their profile
+    """
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        user.set_password(request.data.get('password'))
+        user.save()
+        
+        # Create user profile
+        UserProfile.objects.create(
+            user=user,
+            is_employer=request.data.get('is_employer', False)
+        )
+        
+        # Create auth token
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_user(request):
+    """
+    Authenticate user and return token
+    """
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    if not email or not password:
+        return Response({
+            'error': 'Please provide both email and password'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Try to find user by email
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({
+            'error': 'Invalid credentials'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # Authenticate user
+    user = authenticate(username=user.username, password=password)
+    if not user:
+        return Response({
+            'error': 'Invalid credentials'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # Get or create token
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({
+        'token': token.key,
+        'user': UserSerializer(user).data
+    })
 
 # Create your views here.
 

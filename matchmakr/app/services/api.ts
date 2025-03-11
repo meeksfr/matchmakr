@@ -1,13 +1,14 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1/',
+  baseURL: 'http://127.0.0.1:8801/api/v1/',
 });
 
 // Add request interceptor to add auth token
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Token ${token}`;
   }
@@ -60,7 +61,7 @@ export const login = async (email: string, password: string): Promise<{ token: s
   try {
     const response = await api.post('auth/login/', { email, password });
     const { token } = response.data;
-    localStorage.setItem('auth_token', token);
+    await AsyncStorage.setItem('auth_token', token);
     return { token };
   } catch (error) {
     console.error('Login error:', error);
@@ -68,8 +69,8 @@ export const login = async (email: string, password: string): Promise<{ token: s
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem('auth_token');
+export const logout = async () => {
+  await AsyncStorage.removeItem('auth_token');
 };
 
 export const fetchCandidates = async (): Promise<UserProfile[]> => {
@@ -109,6 +110,31 @@ export const deleteMatch = async (userId: number, jobId: number): Promise<void> 
     await api.delete(`matches/${userId}/${jobId}/`);
   } catch (error) {
     console.error('Error deleting match:', error);
+    throw error;
+  }
+};
+
+export const register = async (
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  isEmployer: boolean = false
+): Promise<{ token: string }> => {
+  try {
+    const response = await api.post('auth/register/', {
+      email,
+      password,
+      first_name: firstName,
+      last_name: lastName,
+      username: email.split('@')[0], // Generate username from email
+      is_employer: isEmployer
+    });
+    const { token } = response.data;
+    await AsyncStorage.setItem('auth_token', token);
+    return { token };
+  } catch (error) {
+    console.error('Registration error:', error);
     throw error;
   }
 }; 
