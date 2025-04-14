@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configure axios defaults
-const token = 'dc0dab3d4d7d48cafd2e6e6d03d6615e88fcd5a2';
+const token = 'f8ebe492fc8162f8466c3eec5bdc556c2f1029f1';
 axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
 export interface Skill {
@@ -85,4 +85,16 @@ export const deleteMatch = async (userId: number, jobId: number): Promise<void> 
     console.error('Error deleting match:', error);
     throw error;
   }
+};
+
+// Add a function to set the token
+export const setAuthToken = (token: string) => {
+  localStorage.setItem('authToken', token);
+  axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+};
+
+// Add a function to remove the token
+export const removeAuthToken = () => {
+  localStorage.removeItem('authToken');
+  delete axios.defaults.headers.common['Authorization'];
 }; 

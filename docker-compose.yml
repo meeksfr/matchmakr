@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -45,4 +45,4 @@ services:
       - backend
 
 volumes:
-  postgres_data: 
+  postgres_data:
